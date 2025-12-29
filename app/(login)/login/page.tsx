@@ -5,6 +5,8 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { loginSchema, registerSchema } from "@/lib/models";
+import { registerUserAPI, loginUserAPI } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 
 interface FormErrors {
   email?: string;
@@ -20,6 +22,7 @@ const ANIMATION_VARIANTS = {
 };
 
 export default function AuthPage() {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
@@ -65,7 +68,15 @@ export default function AuthPage() {
     }
 
     try {
-      setIsSuccess(true);
+      const user = isLogin
+        ? await loginUserAPI(formData)
+        : await registerUserAPI(formData);
+      if (user !== null) {
+        setIsSuccess(true);
+        router.push("/");
+      } else {
+        setIsLoading(false);
+      }
     } catch {
       setIsLoading(false);
     }
