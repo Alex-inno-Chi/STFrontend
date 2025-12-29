@@ -1,6 +1,4 @@
 // "use client";
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthGuard from "@/providers/AuthGuard";
@@ -26,17 +24,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthGuard>
-          <div className="flex h-[100dvh] overflow-hidden">
-            <Sidebar />
-            <div className="flex-1 flex flex-col">
-              <Header />
-              <main className="flex-1 overflow-hidden bg-white">
-                {children}
-              </main>
-            </div>
-          </div>
-        </AuthGuard>
+        <AuthGuard>{children}</AuthGuard>
         <ToastContainer
           position="top-right"
           autoClose={5000}
