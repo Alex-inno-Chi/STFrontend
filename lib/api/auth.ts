@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { POST } from "./client";
 import { ApiEndpoints } from "./api-endpoints";
 import { User } from "../types";
-import { createSession } from "./jwt_session";
 
 export interface RegisterUserData {
   username: string;
@@ -24,7 +23,6 @@ export const loginUserAPI = async (
 
     if (response.ok) {
       toast.success(`User loged in !`);
-      await createSession(response.data.user.id);
       return response.data.user;
     }
     return null;
@@ -42,7 +40,6 @@ export const registerUserAPI = async (
 
     if (response.ok) {
       toast.success(`User created !`);
-      await createSession(response.data.user.id);
       return response.data.user;
     }
     return null;
