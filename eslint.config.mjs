@@ -17,7 +17,7 @@ const eslintConfig = [
 eslintConfig.push({
   rules: {
     "no-console": ["error", { allow: ["warn", "error"] }],
-    "prettier/prettier": "error",
+    "prettier/prettier": ["error", { endOfLine: "auto" }],
   },
 });
 

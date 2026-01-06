@@ -48,3 +48,18 @@ export const registerUserAPI = async (
     return null;
   }
 };
+
+export const logoutAPI = async () => {
+  try {
+    const response = await POST(ApiEndpoints.LOGOUT_USER);
+
+    if (response.ok) {
+      toast.success(`User logged out!`);
+      return response.status;
+    }
+    return null;
+  } catch (error) {
+    toast(`Error: ${error}`);
+    return null;
+  }
+};
