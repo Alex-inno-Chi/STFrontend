@@ -2,9 +2,10 @@
 import { useEffect, useState, useCallback } from "react";
 import ChatList from "@/components/ui/ChatList";
 import ChatWindow from "@/components/ui/ChatWindow";
-import { Chat, Message } from "@/lib/types";
+import { Chat, Message, User } from "@/lib/types";
 import { getChatsAPI } from "@/lib/api/chats";
 import { getMessagesAPI } from "@/lib/api/messages";
+import { getUsersAPI } from "@/lib/api/users";
 import NewChatModal from "@/components/ui/NewChatModal";
 import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
@@ -12,6 +13,7 @@ import { useChatStore } from "@/lib/store/chats";
 
 function ChatContent() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -81,6 +83,14 @@ function ChatContent() {
   const handleDeleteMessage = () => {};
 
   useEffect(() => {
+    async function getUsers() {
+      const usersData = await getUsersAPI();
+      setUsers(usersData || []);
+    }
+    getUsers();
+  }, []);
+
+  useEffect(() => {
     async function getChats() {
       const chatsData = await getChatsAPI();
       setChats(chatsData || []);
@@ -122,6 +132,7 @@ function ChatContent() {
       }
 
       <NewChatModal
+        users={users}
         isOpen={isNewChatModalOpen}
         onClose={() => setIsNewChatModalOpen(false)}
       />
