@@ -1,11 +1,17 @@
 import { Cross2Icon } from "@radix-ui/react-icons";
+import { User } from "@/lib/types";
 
 interface NewChatModalProps {
+  users: User[];
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function NewChatModal({ isOpen, onClose }: NewChatModalProps) {
+export default function NewChatModal({
+  users = [],
+  isOpen,
+  onClose,
+}: NewChatModalProps) {
   const handleCreateChat = () => {};
 
   if (!isOpen) return null;
@@ -21,7 +27,10 @@ export default function NewChatModal({ isOpen, onClose }: NewChatModalProps) {
         </button>
 
         <h2 className="text-xl font-semibold mb-4">Create New Chat</h2>
-
+        {/* for list of users */}
+        {users.map((user) => (
+          <div key={user.id}>{user.username}</div>
+        ))}
         <button
           onClick={handleCreateChat}
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
