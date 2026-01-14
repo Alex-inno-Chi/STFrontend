@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { loginSchema, registerSchema } from "@/lib/models";
 import { registerUserAPI, loginUserAPI } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/lib/store/user";
+import { getWebSocketTokenAction } from "@/lib/api/utils";
 
 interface FormErrors {
   email?: string;
@@ -22,6 +24,7 @@ const ANIMATION_VARIANTS = {
 };
 
 export default function AuthPage() {
+  const setUser = useUserStore((state) => state.setUser);
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -73,6 +76,11 @@ export default function AuthPage() {
         : await registerUserAPI(formData);
       if (user !== null) {
         setIsSuccess(true);
+        setUser(user);
+        const token = await getWebSocketTokenAction();
+        if (token) {
+          localStorage.setItem("authToken", token);
+        }
         router.push("/");
       } else {
         setIsLoading(false);
