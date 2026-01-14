@@ -1,8 +1,8 @@
 // "use client";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AuthGuard from "@/providers/AuthGuard";
 import { ToastContainer } from "react-toastify";
+import UserInitializer from "@/providers/UserInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +24,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthGuard>{children}</AuthGuard>
+        <UserInitializer />
+        {children}
         <ToastContainer
           position="top-right"
           autoClose={5000}
