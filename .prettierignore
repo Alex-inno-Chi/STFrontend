@@ -18,6 +18,13 @@ dist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Config files
+tsconfig.json
+next.config.ts
+postcss.config.mjs
+eslint.config.mjs
+tailwind.config.ts
 .pnpm-debug.log*
 
 # Environment files
