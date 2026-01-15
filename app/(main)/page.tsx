@@ -125,7 +125,7 @@ function ChatContent() {
 
       {
         <ChatWindow
-          userId={user!.id}
+          userId={user?.id ?? null}
           chatId={activeChatId}
           messages={messages}
           setNewMessage={setNewMessage}
