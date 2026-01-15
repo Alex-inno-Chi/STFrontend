@@ -15,10 +15,9 @@ function MessageBubble({
   isMine: boolean;
 }) {
   const getMessageTime = () => {
-    if (message.edited_at) {
-      return "edited at " + formatDate(message.edited_at);
-    } else if (message.sent_at) return formatDate(message.sent_at);
-    else return "";
+    if (message.edited_at) return "edited at " + formatDate(message.edited_at);
+    if (message.sent_at) return formatDate(message.sent_at);
+    return "";
   };
   return (
     <div
@@ -49,7 +48,7 @@ export default function MessageList({ messages, userId }: MessageListProps) {
         <MessageBubble
           key={message.id}
           message={message}
-          isMine={userId === message.sender_id ? true : false}
+          isMine={userId === message.sender_id}
         />
       ))}
     </div>
