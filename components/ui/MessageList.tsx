@@ -16,8 +16,7 @@ function MessageBubble({
 }) {
   const getMessageTime = () => {
     if (message.edited_at) return "edited at " + formatDate(message.edited_at);
-    if (message.sent_at) return formatDate(message.sent_at);
-    return "";
+    return formatDate(message.sent_at);
   };
   return (
     <div
