@@ -8,7 +8,7 @@ import { loginSchema, registerSchema } from "@/lib/models";
 import { registerUserAPI, loginUserAPI } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/store/user";
-import { getWebSocketTokenAction } from "@/lib/api/utils";
+// import { getWebSocketTokenAction } from "@/lib/api/utils";
 
 interface FormErrors {
   email?: string;
@@ -84,10 +84,10 @@ export default function AuthPage() {
       if (user !== null) {
         setIsSuccess(true);
         setUser(user);
-        const token = await getWebSocketTokenAction();
-        if (token) {
-          localStorage.setItem("authToken", token);
-        }
+        // const token = await getWebSocketTokenAction();
+        // if (token) {
+        //   localStorage.setItem("authToken", token);
+        // }
         router.push("/");
       } else {
         setIsLoading(false);
