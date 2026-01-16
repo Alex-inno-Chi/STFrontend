@@ -13,6 +13,17 @@ export default function UserInitializer() {
     let mounted = true;
     const initUser = async () => {
       try {
+        if (typeof window !== "undefined") {
+          const storedUser = localStorage.getItem("user");
+          if (storedUser) {
+            try {
+              const user = JSON.parse(storedUser);
+              if (mounted) setUser(user);
+            } catch (error) {
+              toast(`Error parsing stored user data: ${error}`);
+            }
+          }
+        }
         const response = await GET(ApiEndpoints.USER);
         if (!mounted) return;
         if (response.ok) {
@@ -21,8 +32,10 @@ export default function UserInitializer() {
           setUser(null);
         }
       } catch (error) {
-        toast(`Error: ${error}`);
-        if (mounted) setUser(null);
+        if (mounted) {
+          toast(`Error: ${error}`);
+          setUser(null);
+        }
       }
     };
     initUser();
