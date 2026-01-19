@@ -3,6 +3,7 @@ import { ExitIcon, FaceIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAdminStore } from "@/lib/store/admin";
+import { useUserStore } from "@/lib/store/user";
 import { logoutAPI } from "@/lib/api/auth";
 
 export default function Sidebar() {
@@ -16,11 +17,12 @@ export default function Sidebar() {
   }
 
   const navItems = [{ name: "Chats", icon: FaceIcon, path: "/" }];
+
   const logout = async () => {
-    const log = await logoutAPI();
-    if (log !== null) {
-      router.push("/login");
-    }
+    const storeLogout = useUserStore.getState().logout;
+    storeLogout();
+    await logoutAPI();
+    router.push("/login");
   };
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,7 +8,7 @@ import { loginSchema, registerSchema } from "@/lib/models";
 import { registerUserAPI, loginUserAPI } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/store/user";
-import { getWebSocketTokenAction } from "@/lib/api/utils";
+// import { getWebSocketTokenAction } from "@/lib/api/utils";
 
 interface FormErrors {
   email?: string;
@@ -25,6 +25,7 @@ const ANIMATION_VARIANTS = {
 
 export default function AuthPage() {
   const setUser = useUserStore((state) => state.setUser);
+  const user = useUserStore((state) => state.user);
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -35,6 +36,12 @@ export default function AuthPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      router.replace("/");
+    }
+  }, [user?.id, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -77,10 +84,10 @@ export default function AuthPage() {
       if (user !== null) {
         setIsSuccess(true);
         setUser(user);
-        const token = await getWebSocketTokenAction();
-        if (token) {
-          localStorage.setItem("authToken", token);
-        }
+        // const token = await getWebSocketTokenAction();
+        // if (token) {
+        //   localStorage.setItem("authToken", token);
+        // }
         router.push("/");
       } else {
         setIsLoading(false);

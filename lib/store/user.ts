@@ -11,6 +11,21 @@ interface UserStore {
 export const useUserStore = create<UserStore>((set) => ({
   user: null,
   isInitialized: false,
-  setUser: (user) => set({ user: user, isInitialized: true }),
-  logout: () => set({ user: null, isInitialized: true }),
+  setUser: (user) => {
+    if (typeof window !== "undefined") {
+      if (user) localStorage.setItem("user", JSON.stringify(user));
+      if (!user) {
+        localStorage.removeItem("user");
+        localStorage.removeItem("authToken");
+      }
+    }
+    return set({ user: user, isInitialized: true });
+  },
+  logout: () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
+    }
+    return set({ user: null, isInitialized: true });
+  },
 }));
