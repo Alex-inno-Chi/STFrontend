@@ -8,6 +8,7 @@ import ChatAvatar from "./ChatAvatar";
 export default function ChatList({
   chats = [],
   activeChat,
+  setActiveChat,
   onAddNewChat,
 }: {
   chats: Chat[];
@@ -29,6 +30,7 @@ export default function ChatList({
         {chats.map((chat) => (
           <div
             key={chat.id}
+            onClick={() => setActiveChat(chat.id)}
             className={`p-4 flex ${
               activeChat === chat.id
                 ? "bg-blue-500 text-white"

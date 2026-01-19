@@ -10,8 +10,10 @@ import NewChatModal from "@/components/ui/NewChatModal";
 import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
+import { useUserStore } from "@/lib/store/user";
 
 function ChatContent() {
+  const { user } = useUserStore();
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -123,7 +125,7 @@ function ChatContent() {
 
       {
         <ChatWindow
-          userId={null}
+          userId={user?.id ?? null}
           chatId={activeChatId}
           messages={messages}
           setNewMessage={setNewMessage}
