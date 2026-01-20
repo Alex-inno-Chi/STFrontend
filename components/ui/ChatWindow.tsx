@@ -7,7 +7,7 @@ interface ChatWindowProps {
   userId: number | null;
   chatId: number | null;
   messages: Message[];
-  setNewMessage: (text: string, id: number | null) => void;
+  setNewMessage: (message: Message) => void;
   handleDeleteMessage: (id: number | null) => void;
 }
 
@@ -15,17 +15,21 @@ export default function ChatWindow({
   userId,
   chatId,
   messages,
+  setNewMessage,
 }: ChatWindowProps) {
-  const [content, setNewMessage] = useState("");
+  const [content, setContent] = useState("");
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMessage(e.target.value);
+    setContent(e.target.value);
   };
 
   const onSendMessage = async () => {
     if (chatId !== null) {
       const newMessage = await sendMessageAPI({ chatId, content });
-      if (newMessage != null) setNewMessage("");
+      if (newMessage != null) {
+        if (setNewMessage) setNewMessage(newMessage);
+        setContent("");
+      }
     }
   };
 

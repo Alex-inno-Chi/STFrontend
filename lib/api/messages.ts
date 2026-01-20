@@ -32,7 +32,7 @@ export const getMessagesAPI = async (
 
 export const sendMessageAPI = async (
   payload: SendMessageData
-): Promise<Message[] | null> => {
+): Promise<Message | null> => {
   try {
     const response = await POST(ApiEndpoints.MESSAGES(""), payload);
     if (response.ok) {
