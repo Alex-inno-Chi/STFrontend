@@ -5,7 +5,7 @@ import { sendMessageAPI } from "@/lib/api/messages";
 
 interface ChatWindowProps {
   userId: number | null;
-  chatId: number;
+  chatId: number | null;
   messages: Message[];
   setNewMessage: (text: string, id: number | null) => void;
   handleDeleteMessage: (id: number | null) => void;
@@ -23,8 +23,10 @@ export default function ChatWindow({
   };
 
   const onSendMessage = async () => {
-    const newMessage = await sendMessageAPI({ chatId, content });
-    if (newMessage != null) setNewMessage("");
+    if (chatId !== null) {
+      const newMessage = await sendMessageAPI({ chatId, content });
+      if (newMessage != null) setNewMessage("");
+    }
   };
 
   return (
