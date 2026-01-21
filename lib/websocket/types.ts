@@ -26,6 +26,13 @@ export enum ServerEvents {
   MESSAGE_READ_STATUS = "message:read-status",
   JOINED_CHAT = "joined:chat",
   LEFT_CHAT = "left:chat",
+  USER_ONLINE = "user:online",
+  USER_OFFLINE = "user:offline",
+}
+
+export interface UserStatusPayload {
+  userId: number;
+  isOnline: boolean;
 }
 
 export interface TypingPayload {
@@ -88,6 +95,8 @@ export interface ServerToClientEvents {
   ) => void;
   [ServerEvents.JOINED_CHAT]: (payload: JoinedChatPayload) => void;
   [ServerEvents.LEFT_CHAT]: (payload: LeftChatPayload) => void;
+  [ServerEvents.USER_ONLINE]: (payload: UserStatusPayload) => void;
+  [ServerEvents.USER_OFFLINE]: (payload: UserStatusPayload) => void;
 }
 
 export interface ClientToServerEvents {

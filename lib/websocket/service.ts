@@ -9,7 +9,9 @@ import {
   MessageReadPayload,
   ServerToClientEvents,
   ClientToServerEvents,
+  UserStatusPayload,
 } from "./types";
+import { useUsersStatusStore } from "../store/users-status";
 
 type EventCallback = (...args: unknown[]) => void;
 
@@ -121,6 +123,9 @@ class WebSocketService {
 
     // Handle connection:ready event separately for reconnection logic
     this.socket.on(ServerEvents.CONNECTION_READY, (payload) => {
+      const { setUserStatus } = useUsersStatusStore.getState();
+      setUserStatus(payload.userId, true);
+
       this.emit(ServerEvents.CONNECTION_READY, payload);
 
       // Rejoin all previously joined chats after authentication
@@ -161,6 +166,18 @@ class WebSocketService {
         this.emit(event, data);
       });
     });
+
+    this.socket.on(ServerEvents.USER_ONLINE, (payload: UserStatusPayload) => {
+      const { setUserStatus } = useUsersStatusStore.getState();
+      setUserStatus(payload.userId, true);
+      this.emit(ServerEvents.USER_ONLINE, payload);
+    });
+
+    this.socket.on(ServerEvents.USER_OFFLINE, (payload: UserStatusPayload) => {
+      const { setUserStatus } = useUsersStatusStore.getState();
+      setUserStatus(payload.userId, false);
+      this.emit(ServerEvents.USER_OFFLINE, payload);
+    });
   }
 
   public disconnect(): void {
@@ -172,6 +189,11 @@ class WebSocketService {
     this.typingTimeouts.forEach((timeout) => clearTimeout(timeout));
     this.typingTimeouts.clear();
     this.setStatus("disconnected");
+  }
+
+  public setCurrentUserOffline(userId: number): void {
+    const { setUserStatus } = useUsersStatusStore.getState();
+    setUserStatus(userId, false);
   }
 
   public isConnected(): boolean {
