@@ -80,7 +80,11 @@ function ChatContent() {
     }
   }, [activeChatId, setActiveChatId]);
 
-  function setNewMessage() {}
+  function setNewMessage(message: Message) {
+    const newMessages = messages;
+    newMessages.push(message);
+    setMessages(newMessages);
+  }
 
   const handleDeleteMessage = () => {};
 
