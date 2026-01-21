@@ -37,9 +37,8 @@ export default function ChatWindow({
   const deleteMessage = async (id: number) => {
     if (chatId !== null) {
       const deletedMessage = await deleteMessageAPI({ chatId, id });
-      if (deletedMessage != null) {
-        if (handleDeleteMessage) handleDeleteMessage(id);
-      }
+      if (deletedMessage != null && handleDeleteMessage)
+        handleDeleteMessage(id);
     }
   };
 
