@@ -86,7 +86,10 @@ function ChatContent() {
     setMessages(newMessages);
   }
 
-  const handleDeleteMessage = () => {};
+  const handleDeleteMessage = (id: number | null) => {
+    const newMessages = messages.filter((message) => message.id !== id);
+    setMessages(newMessages);
+  };
 
   useEffect(() => {
     async function getUsers() {
