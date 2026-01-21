@@ -1,7 +1,7 @@
 import { Message } from "@/lib/types";
 import MessageList from "./MessageList";
 import { useState } from "react";
-import { sendMessageAPI } from "@/lib/api/messages";
+import { sendMessageAPI, deleteMessageAPI } from "@/lib/api/messages";
 
 interface ChatWindowProps {
   userId: number | null;
@@ -16,6 +16,7 @@ export default function ChatWindow({
   chatId,
   messages,
   setNewMessage,
+  handleDeleteMessage,
 }: ChatWindowProps) {
   const [content, setContent] = useState("");
 
@@ -33,9 +34,17 @@ export default function ChatWindow({
     }
   };
 
+  const deleteMessage = async (id: number) => {
+    if (chatId !== null) {
+      const deletedMessage = await deleteMessageAPI({ chatId, id });
+      if (deletedMessage != null && handleDeleteMessage)
+        handleDeleteMessage(id);
+    }
+  };
+
   return (
     <div
-      className={`sm:flex ${chatId ? "flex" : "hidden"} flex-1 flex-col h-full max-h-screen relative `}
+      className={`sm:flex ${chatId ? "flex" : "hidden"} flex-1 flex-col h-full max-h-screen relative`}
     >
       {!chatId ? (
         <div className="flex items-center justify-center w-full h-full">
@@ -47,7 +56,11 @@ export default function ChatWindow({
         <>
           {messages.length > 0 ? (
             <div className="flex-1 overflow-y-auto p-[10px]">
-              <MessageList messages={messages} userId={userId} />
+              <MessageList
+                messages={messages}
+                userId={userId}
+                deleteMessage={deleteMessage}
+              />
             </div>
           ) : (
             <div className="flex items-center justify-center w-full h-full">
@@ -60,7 +73,7 @@ export default function ChatWindow({
               onChange={onChange}
               placeholder="type message"
               type="text"
-              className="w-full rounded-lg border px-4 py-2 text-gray-900 focus:ring-2 focus:ring-[#1A73E8] transition-all"
+              className="mt-1 w-full rounded-lg border px-4 py-2 text-gray-900 focus:ring-2 focus:ring-[#1A73E8] transition-all border-gray-300 bg-white"
             />
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"

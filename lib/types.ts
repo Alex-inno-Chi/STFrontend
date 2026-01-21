@@ -23,9 +23,13 @@ export interface Message {
   chat_id: number;
   content: string;
   edited_at?: string;
-  id: number | null;
+  id: number;
   is_deleted?: boolean;
   sender: User;
   sender_id: number;
   sent_at: string;
+}
+
+export interface APIMessage {
+  message: string;
 }
