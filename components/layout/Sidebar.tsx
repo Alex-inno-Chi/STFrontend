@@ -6,6 +6,7 @@ import { useAdminStore } from "@/lib/store/admin";
 import { useUserStore } from "@/lib/store/user";
 import { logoutAPI } from "@/lib/api/auth";
 import { useUsersStatusStore } from "@/lib/store/users-status";
+import { useChatStore } from "@/lib/store/chats";
 
 export default function Sidebar() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function Sidebar() {
   const { user } = useUserStore();
   const { usersStatus } = useUsersStatusStore();
   const isOnline = user?.id ? usersStatus[user.id] : false;
+  const { setActiveChatId } = useChatStore();
 
   function onClose() {
     setSidebarIsOpen(false);
@@ -24,6 +26,7 @@ export default function Sidebar() {
   const logout = async () => {
     const storeLogout = useUserStore.getState().logout;
     storeLogout();
+    setActiveChatId(null);
     await logoutAPI();
     router.push("/login");
   };
