@@ -17,15 +17,20 @@ export interface User {
   username: string;
   email: string;
   avatarUrl?: string;
+  isLoading: boolean;
 }
 
 export interface Message {
-  chat_id?: number;
+  chat_id: number;
   content: string;
   edited_at?: string;
-  id: number | null;
+  id: number;
   is_deleted?: boolean;
-  sender?: User;
-  sender_id?: number;
-  sent_at?: string;
+  sender: User;
+  sender_id: number;
+  sent_at: string;
+}
+
+export interface APIMessage {
+  message: string;
 }

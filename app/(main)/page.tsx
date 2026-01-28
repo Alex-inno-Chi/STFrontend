@@ -2,16 +2,20 @@
 import { useEffect, useState, useCallback } from "react";
 import ChatList from "@/components/ui/ChatList";
 import ChatWindow from "@/components/ui/ChatWindow";
-import { Chat, Message } from "@/lib/types";
+import { Chat, Message, User } from "@/lib/types";
 import { getChatsAPI } from "@/lib/api/chats";
 import { getMessagesAPI } from "@/lib/api/messages";
+import { getUsersAPI } from "@/lib/api/users";
 import NewChatModal from "@/components/ui/NewChatModal";
 import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
+import { useUserStore } from "@/lib/store/user";
 
 function ChatContent() {
+  const { user } = useUserStore();
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -76,9 +80,24 @@ function ChatContent() {
     }
   }, [activeChatId, setActiveChatId]);
 
-  function setNewMessage() {}
+  function setNewMessage(message: Message) {
+    const newMessages = messages;
+    newMessages.push(message);
+    setMessages(newMessages);
+  }
 
-  const handleDeleteMessage = () => {};
+  const handleDeleteMessage = (id: number | null) => {
+    const newMessages = messages.filter((message) => message.id !== id);
+    setMessages(newMessages);
+  };
+
+  useEffect(() => {
+    async function getUsers() {
+      const usersData = await getUsersAPI();
+      setUsers(usersData || []);
+    }
+    getUsers();
+  }, []);
 
   useEffect(() => {
     async function getChats() {
@@ -113,7 +132,7 @@ function ChatContent() {
 
       {
         <ChatWindow
-          userId={null}
+          userId={user?.id ?? null}
           chatId={activeChatId}
           messages={messages}
           setNewMessage={setNewMessage}
@@ -122,6 +141,7 @@ function ChatContent() {
       }
 
       <NewChatModal
+        users={users}
         isOpen={isNewChatModalOpen}
         onClose={() => setIsNewChatModalOpen(false)}
       />

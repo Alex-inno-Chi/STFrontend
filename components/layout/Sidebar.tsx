@@ -1,19 +1,35 @@
 "use client";
 import { ExitIcon, FaceIcon, Cross2Icon } from "@radix-ui/react-icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAdminStore } from "@/lib/store/admin";
+import { useUserStore } from "@/lib/store/user";
+import { logoutAPI } from "@/lib/api/auth";
+import { useUsersStatusStore } from "@/lib/store/users-status";
+import { useChatStore } from "@/lib/store/chats";
 
 export default function Sidebar() {
+  const router = useRouter();
   const { setSidebarIsOpen, sidebarIsOpen } = useAdminStore();
-
   const pathname = usePathname();
+  const { user } = useUserStore();
+  const { usersStatus } = useUsersStatusStore();
+  const isOnline = user?.id ? usersStatus[user.id] : false;
+  const { setActiveChatId } = useChatStore();
 
   function onClose() {
     setSidebarIsOpen(false);
   }
 
   const navItems = [{ name: "Chats", icon: FaceIcon, path: "/" }];
+
+  const logout = async () => {
+    const storeLogout = useUserStore.getState().logout;
+    storeLogout();
+    setActiveChatId(null);
+    await logoutAPI();
+    router.push("/login");
+  };
 
   return (
     <>
@@ -37,7 +53,12 @@ export default function Sidebar() {
       >
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">avatar</div>
+            <div>
+              <p className="font-semibold">{user?.username}</p>
+              <p className={isOnline ? "text-green-600" : "text-red-600"}>
+                {isOnline ? "🟢 Online" : "🔴 Offline"}
+              </p>
+            </div>
             <button
               className="sm:hidden p-2 hover:bg-gray-200 rounded-full"
               onClick={onClose}
@@ -64,7 +85,10 @@ export default function Sidebar() {
                 </li>
               );
             })}
-            <li className="flex items-center p-2 hover:bg-gray-200 rounded cursor-pointer text-red-600">
+            <li
+              onClick={() => logout()}
+              className="flex items-center p-2 hover:bg-gray-200 rounded cursor-pointer text-red-600"
+            >
               <ExitIcon className="w-5 h-5 mr-2" />
               <span>Logout</span>
             </li>

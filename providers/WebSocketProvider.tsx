@@ -51,8 +51,9 @@ export function useAuthToken(): string | null {
     const fetchToken = async () => {
       try {
         const tokenValue = await getWebSocketTokenAction();
-        if (isMounted) {
+        if (isMounted && tokenValue) {
           setToken(tokenValue);
+          // localStorage.setItem("authToken", tokenValue);
         }
       } catch (error) {
         console.error("[WebSocket Auth] Failed to get auth token:", error);
