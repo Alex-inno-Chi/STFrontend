@@ -1,21 +1,40 @@
-import { Message } from "@/lib/types";
+import { Message, MessageFile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/helpers/formatDate";
 import React, { useState, useRef, useEffect } from "react";
+import { FileIcon } from "@radix-ui/react-icons";
 
 interface MessageListProps {
   messages: Message[];
+  files: MessageFile[];
   userId: number | null;
   deleteMessage: (id: number) => void;
 }
 
 interface MessageBubbleProps {
   message: Message;
+  files: MessageFile[];
   isMine: boolean;
   openPopup: (x: number, y: number, message: Message) => void;
 }
 
-function MessageBubble({ message, isMine, openPopup }: MessageBubbleProps) {
+function MessageInFile({ file }: { file: MessageFile }) {
+  return (
+    <div className="flex rounded-sm items-center bg-blue-400 gap-3 py-1 px-2 hover:bg-blue-300 mb-2">
+      <div>
+        <FileIcon className="w-[25px] h-[25px]" />
+      </div>
+      <div>{file.name}</div>
+    </div>
+  );
+}
+
+function MessageBubble({
+  message,
+  files,
+  isMine,
+  openPopup,
+}: MessageBubbleProps) {
   const getMessageTime = () => {
     if (message.edited_at && message.edited_at !== message.sent_at)
       return "edited at " + formatDate(message.edited_at);
@@ -38,11 +57,16 @@ function MessageBubble({ message, isMine, openPopup }: MessageBubbleProps) {
         key={message.id}
         onContextMenu={onContextMenu}
         className={cn(
-          "max-w-[10vw] p-[10px] rounded-sm",
+          "max-w-[15vw] p-[10px] rounded-sm",
           isMine ? "bg-blue-500 text-white" : "bg-gray-300"
         )}
       >
         {!isMine && <div className="font-bold">{message.sender?.username}</div>}
+        <div className="flex flex-col">
+          {files.map((file) => (
+            <MessageInFile file={file} key={file.size} />
+          ))}
+        </div>
         <div>{message.content}</div>
         <div className="text-xs opacity-70">{getMessageTime()}</div>
       </div>
@@ -52,6 +76,7 @@ function MessageBubble({ message, isMine, openPopup }: MessageBubbleProps) {
 
 export default function MessageList({
   messages,
+  files,
   userId,
   deleteMessage,
 }: MessageListProps) {
@@ -94,6 +119,7 @@ export default function MessageList({
         .map((message) => (
           <MessageBubble
             key={message.id}
+            files={files.filter((file) => file.message_id === message.id)}
             message={message}
             isMine={userId === message.sender_id}
             openPopup={openPopup}

@@ -18,6 +18,9 @@ export interface User {
   email: string;
   avatarUrl?: string;
   isLoading: boolean;
+  name?: string;
+  birthday?: string;
+  phone?: string;
 }
 
 export interface Message {
@@ -29,6 +32,15 @@ export interface Message {
   sender: User;
   sender_id: number;
   sent_at: string;
+}
+
+export interface MessageFile {
+  chat_id: number;
+  message_id: number;
+  path: string;
+  name: string;
+  size: number;
+  type: string;
 }
 
 export interface APIMessage {
