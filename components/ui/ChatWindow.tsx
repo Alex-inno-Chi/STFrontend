@@ -32,6 +32,7 @@ export default function ChatWindow({
     filesArray.forEach((file) => {
       dataTransfer.items.add(file);
     });
+
     return dataTransfer.files;
   }
 
@@ -70,9 +71,9 @@ export default function ChatWindow({
             name: file.name,
             size: file.size,
             type: file.type,
-          });
+          } as MessageFile);
         });
-        if (newFiles != null) {
+        if (newFiles) {
           setNewMessage(newMessage, newFiles);
           setContent("");
           if (fileInput.current) {
@@ -90,11 +91,6 @@ export default function ChatWindow({
       if (deletedMessage != null && handleDeleteMessage)
         handleDeleteMessage(id);
     }
-  };
-
-  const openEmojiPicker = () => {
-    if (isEmojiPickerOpen) setEmojiPickerOpen(false);
-    else setEmojiPickerOpen(true);
   };
 
   return (
@@ -146,7 +142,7 @@ export default function ChatWindow({
               <div className="flex px-2 py-2 gap-3">
                 <div>
                   <FaceIcon
-                    onClick={openEmojiPicker}
+                    onClick={() => setEmojiPickerOpen(!isEmojiPickerOpen)} //Убрала ту функцию
                     className="w-[35px] h-[35px] text-gray-500 hover:text-gray-700"
                   ></FaceIcon>
                 </div>

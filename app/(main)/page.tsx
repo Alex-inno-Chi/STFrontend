@@ -125,8 +125,7 @@ function ChatContent() {
       // const filesData = await getMessagesFilesAPI(chatId);
       // setFiles(filesData || []);
       const storedFiles = localStorage.getItem("messageFiles");
-      if (storedFiles) setFiles(JSON.parse(storedFiles));
-      else setFiles([]);
+      setFiles(JSON.parse(storedFiles || "[]")); // ТайпСкрипт жаловался на тернарник (из-за того, что ничего не присваивалось, а вызывалась функция), поэтому сделала
     }
     if (activeChatId) {
       getMessages(activeChatId);

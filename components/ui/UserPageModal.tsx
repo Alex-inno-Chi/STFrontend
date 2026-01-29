@@ -10,6 +10,7 @@ import "react-international-phone/style.css";
 import { fullFormatDate, calculateAge } from "@/helpers/formatDate";
 import ChatAvatar from "./ChatAvatar";
 import { userInfoSchema } from "@/lib/models";
+import { Colors } from "./themes";
 
 interface FormErrors {
   avatarUrl?: string;
@@ -39,6 +40,10 @@ export default function UserPageModal({
   const isOnline = user?.id ? usersStatus[user.id] : false;
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const birthDay = user?.birthday
+    ? fullFormatDate(user.birthday) +
+      `(${calculateAge(user.birthday)} years old)`
+    : "No birthday";
 
   const validateForm = () => {
     try {
@@ -81,6 +86,16 @@ export default function UserPageModal({
   };
 
   if (!isOpen) return null;
+
+  if (!user)
+    return (
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 w-[100vw]">
+        <div className="bg-white/95 shadow-xl rounded-lg w-full max-w-md p-6 relative">
+          User not found
+        </div>
+      </div>
+    );
+
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 w-[100vw]">
       <div className="bg-white/95 shadow-xl rounded-lg w-full max-w-md p-6 relative">
@@ -104,12 +119,12 @@ export default function UserPageModal({
             <div className="flex items-center gap-[20px]">
               <ChatAvatar
                 name={"UserPhoto"}
-                photoUrl={user?.avatarUrl}
-                chatId={user?.id ?? 0}
+                photoUrl={user.avatarUrl}
+                chatId={user.id}
                 size="lg"
               />
               <div className="py-3">
-                <h3>{user?.name || "No name"}</h3>
+                <h3>{user.name || "No name"}</h3>
                 <p
                   className={cn(
                     "text-sm",
@@ -121,25 +136,20 @@ export default function UserPageModal({
               </div>
             </div>
             <div className="py-3">
-              <h3>{user?.phone || "No name"}</h3>
+              <h3>{user.phone || "No phone"}</h3>
               <p className="text-gray-600 text-sm">Phone</p>
             </div>
             <div className="py-3">
-              <h3>@{user?.username || "No name"}</h3>
+              <h3>@{user.username}</h3>
               <p className="text-gray-600 text-sm">Username</p>
             </div>
             <div className="py-3">
-              <h3>{user?.email}</h3>
+              <h3>{user.email}</h3>
               <p className="text-gray-600 text-sm">E-mail</p>
             </div>
             <div className="py-3 flex items-center justify-between">
               <div>
-                <h3>
-                  {user?.birthday &&
-                    !isBirthdayHidden &&
-                    fullFormatDate(user.birthday) +
-                      ` (${calculateAge(user.birthday)} years old)`}
-                </h3>
+                <h3>{!isBirthdayHidden && birthDay}</h3>
                 <p className="text-gray-600 text-sm">Birthday</p>
               </div>
               <button
@@ -161,15 +171,15 @@ export default function UserPageModal({
               <label className="text-gray-600 text-sm">Avatar URL: </label>
               <input
                 type="text"
-                defaultValue={user?.avatarUrl}
+                defaultValue={user.avatarUrl}
                 onChange={onChange}
                 name="avatarUrl"
                 className={cn(
-                  "mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[#1A73E8] transition-all",
+                  `mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[${Colors.focus_ring}] transition-all`,
                   errors.avatarUrl ? "border-red-300" : "border-gray-300"
                 )}
               />
-              {errors.email && (
+              {errors.avatarUrl && (
                 <p className="mt-1 text-sm text-red-500">{errors.avatarUrl}</p>
               )}
             </div>
@@ -177,11 +187,11 @@ export default function UserPageModal({
               <label className="text-gray-600 text-sm">Name: </label>
               <input
                 type="text"
-                defaultValue={user?.name}
+                defaultValue={user.name}
                 onChange={onChange}
                 name="name"
                 className={cn(
-                  "mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[#1A73E8] transition-all",
+                  `mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[${Colors.focus_ring}] transition-all`,
                   errors.name ? "border-red-300" : "border-gray-300"
                 )}
               />
@@ -195,7 +205,7 @@ export default function UserPageModal({
                 countrySelectorStyleProps={{
                   buttonClassName: "!px-4 !py-2 !rounded-lg !rounded-r-none",
                 }}
-                value={newUser?.phone}
+                value={newUser.phone}
                 onChange={(phone) =>
                   setNewUser((prev) => ({ ...prev, phone: phone }))
                 }
@@ -213,11 +223,11 @@ export default function UserPageModal({
               <label className="text-gray-600 text-sm">Username: </label>
               <input
                 type="text"
-                defaultValue={user?.username}
+                defaultValue={user.username}
                 onChange={onChange}
                 name="username"
                 className={cn(
-                  "mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[#1A73E8] transition-all",
+                  `mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[${Colors.focus_ring}] transition-all`,
                   errors.username ? "border-red-300" : "border-gray-300"
                 )}
               />
@@ -229,11 +239,11 @@ export default function UserPageModal({
               <label className="text-gray-600 text-sm">E-mail: </label>
               <input
                 type="text"
-                defaultValue={user?.email}
+                defaultValue={user.email}
                 onChange={onChange}
                 name="email"
                 className={cn(
-                  "mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[#1A73E8] transition-all",
+                  `mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[${Colors.focus_ring}] transition-all`,
                   errors.email ? "border-red-300" : "border-gray-300"
                 )}
               />
@@ -245,11 +255,11 @@ export default function UserPageModal({
               <label className="text-gray-600 text-sm">Birthday: </label>
               <input
                 type="date"
-                defaultValue={user?.birthday}
+                defaultValue={user.birthday}
                 onChange={onChange}
                 name="birthday"
                 className={cn(
-                  "mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[#1A73E8] transition-all",
+                  `mt-1 block w-full rounded-lg border px-4 py-3 text-gray-900 focus:ring-2 focus:ring-[${Colors.focus_ring}] transition-all`,
                   errors.birthday ? "border-red-300" : "border-gray-300"
                 )}
               />

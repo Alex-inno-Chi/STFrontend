@@ -63,8 +63,8 @@ function MessageBubble({
       >
         {!isMine && <div className="font-bold">{message.sender?.username}</div>}
         <div className="flex flex-col">
-          {files.map((file) => (
-            <MessageInFile file={file} key={file.size} />
+          {files.map((file, index) => (
+            <MessageInFile file={file} key={index} />
           ))}
         </div>
         <div>{message.content}</div>
