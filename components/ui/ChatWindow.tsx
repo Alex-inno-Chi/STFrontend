@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { sendMessageAPI, deleteMessageAPI } from "@/lib/api/messages";
 import EmojiPicker from "emoji-picker-react";
 import { FaceIcon, UploadIcon } from "@radix-ui/react-icons";
+import { Colors } from "./themes";
 
 interface ChatWindowProps {
   userId: number | null;
@@ -120,7 +121,9 @@ export default function ChatWindow({
             </div>
           )}
           <div className="sticky bottom flex items-end space-x-2 p-4">
-            <div className="flex flex-col w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#1A73E8]">
+            <div
+              className={`flex flex-col w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[${Colors.focus_ring}]`}
+            >
               {selectedFiles.length > 0 && (
                 <div className="flex gap-1 px-4 py-2 flex-wrap">
                   {selectedFiles.map((file, index) => (
