@@ -7,6 +7,8 @@ import { useUserStore } from "@/lib/store/user";
 import { logoutAPI } from "@/lib/api/auth";
 import { useUsersStatusStore } from "@/lib/store/users-status";
 import { useChatStore } from "@/lib/store/chats";
+import { useState } from "react";
+import UserPageModal from "@/components/ui/UserPageModal";
 
 export default function Sidebar() {
   const router = useRouter();
@@ -16,6 +18,7 @@ export default function Sidebar() {
   const { usersStatus } = useUsersStatusStore();
   const isOnline = user?.id ? usersStatus[user.id] : false;
   const { setActiveChatId } = useChatStore();
+  const [isUserPageModalOpen, setUserPageModalOpen] = useState(false);
 
   function onClose() {
     setSidebarIsOpen(false);
@@ -48,12 +51,12 @@ export default function Sidebar() {
         ${sidebarIsOpen ? "translate-x-0" : "-translate-x-full"}
         sm:translate-x-0 transition-transform duration-300 ease-in-out
         w-80 min-w-48 bg-gray-100 border-r border-gray-200 flex-col z-50
-        flex overflow-y-auto max-h-screen
+        flex max-h-screen
       `}
       >
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <div>
+            <div onClick={() => setUserPageModalOpen(true)}>
               <p className="font-semibold">{user?.username}</p>
               <p className={isOnline ? "text-green-600" : "text-red-600"}>
                 {isOnline ? "🟢 Online" : "🔴 Offline"}
@@ -94,6 +97,11 @@ export default function Sidebar() {
             </li>
           </ul>
         </nav>
+        <UserPageModal
+          user={user}
+          isOpen={isUserPageModalOpen}
+          onClose={() => setUserPageModalOpen(false)}
+        />
       </div>
     </>
   );

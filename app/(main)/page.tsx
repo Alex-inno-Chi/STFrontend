@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import ChatList from "@/components/ui/ChatList";
 import ChatWindow from "@/components/ui/ChatWindow";
-import { Chat, Message, User } from "@/lib/types";
+import { Chat, Message, User, MessageFile } from "@/lib/types";
 import { getChatsAPI } from "@/lib/api/chats";
 import { getMessagesAPI } from "@/lib/api/messages";
 import { getUsersAPI } from "@/lib/api/users";
@@ -18,6 +18,7 @@ function ChatContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [files, setFiles] = useState<MessageFile[]>([]);
 
   const { activeChatId, setActiveChatId } = useChatStore();
 
@@ -80,10 +81,16 @@ function ChatContent() {
     }
   }, [activeChatId, setActiveChatId]);
 
-  function setNewMessage(message: Message) {
+  function setNewMessage(message: Message, selectedFiles: MessageFile[]) {
     const newMessages = messages;
     newMessages.push(message);
     setMessages(newMessages);
+    const newFiles = files;
+    selectedFiles.forEach((file) => {
+      newFiles.push(file);
+    });
+    setFiles(newFiles);
+    localStorage.setItem("messageFiles", JSON.stringify(newFiles));
   }
 
   const handleDeleteMessage = (id: number | null) => {
@@ -112,8 +119,17 @@ function ChatContent() {
       const messagesData = await getMessagesAPI(chatId);
       setMessages(messagesData || []);
     }
+    //Получение файлов типо через апишку, но получаю только информацию об "отправленных" файлах
+    async function getFiles() {
+      //async function getFiles(chatId: number) {
+      // const filesData = await getMessagesFilesAPI(chatId);
+      // setFiles(filesData || []);
+      const storedFiles = localStorage.getItem("messageFiles");
+      setFiles(JSON.parse(storedFiles || "[]")); // ТайпСкрипт жаловался на тернарник (из-за того, что ничего не присваивалось, а вызывалась функция), поэтому сделала
+    }
     if (activeChatId) {
       getMessages(activeChatId);
+      getFiles();
     }
   }, [activeChatId]);
 
@@ -135,6 +151,7 @@ function ChatContent() {
           userId={user?.id ?? null}
           chatId={activeChatId}
           messages={messages}
+          files={files}
           setNewMessage={setNewMessage}
           handleDeleteMessage={handleDeleteMessage}
         />
