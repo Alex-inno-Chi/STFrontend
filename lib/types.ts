@@ -13,7 +13,7 @@ export interface Chat {
   members: User[];
 }
 export interface User {
-  id: number | null;
+  id: number;
   username: string;
   email: string;
   avatarUrl?: string;

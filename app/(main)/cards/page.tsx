@@ -1,32 +1,25 @@
 "use client";
 import { Postcard, UserPostcards } from "@/lib/types";
-import { useEffect, useState } from "react";
-import { useUserStore } from "@/lib/store/user";
+import { useState } from "react";
 import { postcards } from "@/lib/postcards";
 import Card from "@/components/ui/Postcard";
 import BoughtCardsModal from "@/components/ui/BoughtCardsModal";
 import BuyMoneyModal from "@/components/ui/BuyMoneyModal";
 import { StarFilledIcon } from "@radix-ui/react-icons";
+import { useUserPostcardsStore } from "@/lib/store/cards";
 import { toast } from "react-toastify";
 
 export default function Postcards() {
   const [isBuyMoneyModal, setBuyMoneyModal] = useState(false);
   const [isBoughtCardsModal, setBoughtCardsModal] = useState(false);
-  const [userPostcards, setUserPostcards] = useState<UserPostcards>({
-    money: 0,
-    user_id: 0,
-    postcards: [],
-  });
-  const { user } = useUserStore();
+  const { userPostcards, setUserPostcards } = useUserPostcardsStore();
 
   const buyMoney = (newMoney: number) => {
-    const oldMoney = userPostcards.money;
-    setUserPostcards((prev) => {
-      const newUserPostcards = { ...prev, money: oldMoney + newMoney };
-      localStorage.setItem("userPostcards", JSON.stringify(newUserPostcards));
-
-      return newUserPostcards;
-    });
+    const newUserPostcards = {
+      ...userPostcards,
+      money: userPostcards.money + newMoney,
+    };
+    setUserPostcards(newUserPostcards);
     toast.success("You've got stars!");
   };
 
@@ -36,53 +29,34 @@ export default function Postcards() {
     amount: number,
     money: number
   ) => {
-    setUserPostcards((prev) => {
-      let updatedPostcards;
+    let updatedPostcards;
 
-      if (prev.postcards.some((card) => card.postcard.id === postcard.id)) {
-        updatedPostcards = prev.postcards
-          .map((card) => {
-            if (card.postcard.id !== postcard.id) return card;
-            return {
-              ...card,
-              amount: forBuy ? card.amount + amount : card.amount - amount,
-            };
-          })
-          .filter((c) => c.amount > 0);
-      } else {
-        updatedPostcards = [...prev.postcards, { postcard, amount }];
-      }
+    if (
+      userPostcards.postcards.some((card) => card.postcard.id === postcard.id)
+    ) {
+      updatedPostcards = userPostcards.postcards
+        .map((card) => {
+          if (card.postcard.id !== postcard.id) return card;
+          return {
+            ...card,
+            amount: forBuy ? card.amount + amount : card.amount - amount,
+          };
+        })
+        .filter((c) => c.amount > 0);
+    } else {
+      updatedPostcards = [...userPostcards.postcards, { postcard, amount }];
+    }
 
-      const newUserPostcards = {
-        ...prev,
-        money: money,
-        postcards: updatedPostcards,
-      } as UserPostcards;
+    const newUserPostcards = {
+      ...userPostcards,
+      money: money,
+      postcards: updatedPostcards,
+    } as UserPostcards;
 
-      localStorage.setItem("userPostcards", JSON.stringify(newUserPostcards));
-
-      return newUserPostcards;
-    });
+    setUserPostcards(newUserPostcards);
     if (forBuy) toast.success("You bought card successfully!");
     else toast.success("You selled card successfully!");
   };
-
-  useEffect(() => {
-    function getUserPostcards() {
-      const UserPostcards = localStorage.getItem("userPostcards");
-      if (UserPostcards) setUserPostcards(JSON.parse(UserPostcards));
-      else {
-        const newUserPostcards = {
-          user_id: user?.id,
-          money: 50,
-          postcards: [],
-        } as UserPostcards;
-        localStorage.setItem("userPostcards", JSON.stringify(newUserPostcards));
-        setUserPostcards(newUserPostcards);
-      }
-    }
-    getUserPostcards();
-  }, [user]);
 
   return (
     <div className="overflow-y-auto h-full max-h-">

@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import ChatList from "@/components/ui/ChatList";
 import ChatWindow from "@/components/ui/ChatWindow";
-import { Chat, Message, User } from "@/lib/types";
+import { Chat, Message, User, UserPostcards } from "@/lib/types";
 import { getChatsAPI } from "@/lib/api/chats";
 import { getMessagesAPI } from "@/lib/api/messages";
 import { getUsersAPI } from "@/lib/api/users";
@@ -11,6 +11,7 @@ import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
 import { useUserStore } from "@/lib/store/user";
+import { useUserPostcardsStore } from "@/lib/store/cards";
 
 function ChatContent() {
   const { user } = useUserStore();
@@ -20,6 +21,7 @@ function ChatContent() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const { activeChatId, setActiveChatId } = useChatStore();
+  const { setUserPostcards } = useUserPostcardsStore();
 
   // WebSocket event handlers
   const handleNewMessage = useCallback(
@@ -116,6 +118,27 @@ function ChatContent() {
       getMessages(activeChatId);
     }
   }, [activeChatId]);
+
+  useEffect(() => {
+    function getUserPostcards() {
+      const jsonCards = localStorage.getItem("usersPostcards");
+      const usersPostcards: UserPostcards[] = jsonCards
+        ? JSON.parse(jsonCards)
+        : [];
+      let userPostcards = usersPostcards.find(
+        (card) => card.user_id === user!.id
+      );
+      if (!userPostcards) {
+        userPostcards = {
+          user_id: user!.id,
+          money: 50,
+          postcards: [],
+        };
+      }
+      setUserPostcards(userPostcards);
+    }
+    if (user?.id) getUserPostcards();
+  }, [user, setUserPostcards]);
 
   function onSetActiveChat(activeChat: number) {
     setActiveChatId(activeChat);
