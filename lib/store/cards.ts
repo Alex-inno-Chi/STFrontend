@@ -15,13 +15,11 @@ export const useUserPostcardsStore = create<UserPostcardsStore>((set) => {
     },
     setUserPostcards: (newUserPostcards: UserPostcards) => {
       const jsonCards = localStorage.getItem("usersPostcards");
-      const usersPostcards = jsonCards ? JSON.parse(jsonCards) : [];
-      if (
-        !usersPostcards.find(
-          (card: UserPostcards) => card.user_id === newUserPostcards.user_id
-        )
-      )
-        usersPostcards.push(newUserPostcards);
+      let usersPostcards = jsonCards ? JSON.parse(jsonCards) : [];
+      usersPostcards = usersPostcards.filter(
+        (card: UserPostcards) => card.user_id !== newUserPostcards.user_id
+      );
+      usersPostcards.push(newUserPostcards);
       localStorage.setItem("usersPostcards", JSON.stringify(usersPostcards));
       set({ userPostcards: newUserPostcards });
     },
