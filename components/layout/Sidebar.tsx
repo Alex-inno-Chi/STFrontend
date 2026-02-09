@@ -1,5 +1,10 @@
 "use client";
-import { ExitIcon, FaceIcon, Cross2Icon } from "@radix-ui/react-icons";
+import {
+  ExitIcon,
+  FaceIcon,
+  Cross2Icon,
+  CardStackIcon,
+} from "@radix-ui/react-icons";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAdminStore } from "@/lib/store/admin";
@@ -21,7 +26,10 @@ export default function Sidebar() {
     setSidebarIsOpen(false);
   }
 
-  const navItems = [{ name: "Chats", icon: FaceIcon, path: "/" }];
+  const navItems = [
+    { name: "Chats", icon: FaceIcon, path: "/" },
+    { name: "Cards", icon: CardStackIcon, path: "/cards" },
+  ];
 
   const logout = async () => {
     const storeLogout = useUserStore.getState().logout;

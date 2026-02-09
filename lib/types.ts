@@ -13,7 +13,7 @@ export interface Chat {
   members: User[];
 }
 export interface User {
-  id: number | null;
+  id: number;
   username: string;
   email: string;
   avatarUrl?: string;
@@ -33,4 +33,30 @@ export interface Message {
 
 export interface APIMessage {
   message: string;
+}
+
+export interface Postcard {
+  id: number;
+  path: string;
+  name: string;
+  description: string;
+  buyCost: number;
+  sellCost: number;
+}
+
+export interface UserPostcards {
+  user_id: number;
+  money: number;
+  postcards: BoughtPostcards[];
+}
+
+export interface BoughtPostcards {
+  postcard: Postcard;
+  amount: number;
+}
+
+export interface MoneyTariff {
+  id: number;
+  thisMoney: number;
+  realMoney: number;
 }
