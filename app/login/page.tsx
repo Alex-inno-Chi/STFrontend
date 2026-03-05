@@ -85,8 +85,15 @@ export default function AuthPage() {
       }
 
       if(!user){
+        setErrors((prev) =>({
+          ...prev,
+          server: isLogin
+          ?"Invalid email or password"
+          : "Registration failed"
+
+        }))
         setIsLoading(false);
-        return;//add errors
+        return;
       }
 
       setIsSuccess(true);
@@ -96,7 +103,10 @@ export default function AuthPage() {
       }, 1000);
 
     } catch {
-      //errors
+      setErrors((prev) =>({
+        ...prev,
+        server: "Woops something went wrong please try again"
+      }));
       setIsLoading(false);
     }
   };
