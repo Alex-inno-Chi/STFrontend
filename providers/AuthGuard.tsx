@@ -13,10 +13,16 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const isLoginPage = pathname?.startsWith("/login");
  
   useEffect(() => {
+    
     if (isLoginPage){
+      (async() =>{
+      const user = await getCurrentUserAPI();
+      if(user){
+        router.push("/");
+        return;
+      }
       setIsLoading(false);
-      setIsAuthenticated(false);
-     
+      setIsAuthenticated(false);})();
       return;      
     }
 

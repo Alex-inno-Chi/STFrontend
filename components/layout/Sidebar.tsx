@@ -1,13 +1,22 @@
 "use client";
 import { ExitIcon, FaceIcon, Cross2Icon, PersonIcon } from "@radix-ui/react-icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAdminStore } from "@/lib/store/admin";
+import { logoutUserAPI } from "@/lib/api/auth";
 
 export default function Sidebar() {
   const { setSidebarIsOpen, sidebarIsOpen } = useAdminStore();
 
+  const router = useRouter();
   const pathname = usePathname();
+
+  async function handleLogout() {
+    const success = await logoutUserAPI();
+    if (success) {
+      router.push("/login");
+    }
+  }
 
   function onClose() {
     setSidebarIsOpen(false);
@@ -66,9 +75,14 @@ export default function Sidebar() {
                 </li>
               );
             })}
-            <li className="flex items-center p-2 hover:bg-gray-200 rounded cursor-pointer text-red-600">
+            <li>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center w-full p-2 rounded cursor-pointer text-red-600 hover:bg-gray-200">
               <ExitIcon className="w-5 h-5 mr-2" />
               <span>Logout</span>
+              </button>
             </li>
           </ul>
         </nav>
