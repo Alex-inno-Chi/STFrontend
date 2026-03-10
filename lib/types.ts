@@ -29,3 +29,12 @@ export interface Message {
   sender_id?: number;
   sent_at?: string;
 }
+
+export type TypesOfRelationships= "friend" | "follower" | "blocked";
+
+export interface Relationship{
+  id: number;
+  type: TypesOfRelationships;
+  relatedUserId: number;
+  relatedUser: User;
+}
