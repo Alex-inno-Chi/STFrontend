@@ -30,7 +30,11 @@ export interface Message {
   sent_at?: string;
 }
 
-export type TypesOfRelationships= "friend" | "follower" | "blocked";
+export enum TypesOfRelationships {
+  Friend = 'friend',
+  Follower = 'follower',
+  Blocked = 'blocked'
+} 
 
 export interface Relationship{
   id: number;
