@@ -9,13 +9,17 @@ import NewChatModal from "@/components/ui/NewChatModal";
 import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
+import { getCurrentUserAPI } from "@/lib/api/auth";
 
 function ChatContent() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null)
 
   const { activeChatId, setActiveChatId } = useChatStore();
+
+
 
   // WebSocket event handlers
   const handleNewMessage = useCallback(
@@ -102,6 +106,14 @@ function ChatContent() {
     setActiveChatId(activeChat);
   }
 
+  useEffect(()=>{
+    async function loadCurrentUser() {
+      const user = await getCurrentUserAPI();
+      setCurrentUserId(user?.id ?? null);
+    } 
+    loadCurrentUser();
+  },[])
+
   return (
     <div className="flex h-full">
       <ChatList
@@ -113,7 +125,7 @@ function ChatContent() {
 
       {
         <ChatWindow
-          userId={null}
+          userId={currentUserId}
           chatId={activeChatId}
           messages={messages}
           setNewMessage={setNewMessage}
