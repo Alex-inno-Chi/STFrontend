@@ -20,18 +20,20 @@ export default function ChatWindow({
 
   const [inputValueMessage, setInputValueMessage] = useState("");
 
-  return (
-    <div
-      className={`sm:flex ${chatId ? "flex" : "hidden"} flex-1 flex-col h-full max-h-screen relative`}
-    >
-      {!chatId && (
-        <div className="flex items-center justify-center w-full h-full">
+  if(!chatId){
+    return (
+          <div className="flex items-center justify-center w-full h-full">
           <h2 className="text-lg font-semibold">
             Select a chat to start messaging
           </h2>
         </div>
-      )}
+    )
+  }
 
+  return (
+    <div
+      className={`sm:flex ${chatId ? "flex" : "hidden"} flex-1 flex-col h-full max-h-screen relative`}
+    >
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 bg-gray-50">
         {messages.map((message)=>(
          <MessageBubble
