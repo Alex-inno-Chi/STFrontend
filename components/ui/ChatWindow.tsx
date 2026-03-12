@@ -45,13 +45,13 @@ export default function ChatWindow({
       </div>
 
       <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
-        <div>
+        <div className="flex gap-2">
           <input
           type = "text"          
           value = {inputValueMessage}
           onChange={(e) => setInputValueMessage(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 px-3 py-2 border border-gray-300 "         
+          className="flex-1 px-3 py-2 border rounded-lg border-gray-300 "         
           />
           <button
           type="button"
