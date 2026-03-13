@@ -121,6 +121,7 @@ function ChatContent() {
         activeChat={activeChatId}
         setActiveChat={onSetActiveChat}
         onAddNewChat={() => setIsNewChatModalOpen(true)}
+        currentUserId={currentUserId}
       />
 
       {
