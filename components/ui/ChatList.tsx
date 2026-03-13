@@ -59,8 +59,7 @@ export default function ChatList({
                   <div className="flex items-center gap-2">
                     {isGroup ? (
                       <FramerLogoIcon className="w-4 h-4 flex-shrink-0" />
-                    ):
-                    <PersonIcon className="w-4 h-4 flex-shrink-0" />}
+                    ): null}
                     <h3 className="text-base font-semibold truncate">
                       {chatName}
                     </h3>
