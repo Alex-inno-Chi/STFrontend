@@ -1,7 +1,7 @@
 "use client";
 
 import { Chat } from "@/lib/types";
-import { FramerLogoIcon } from "@radix-ui/react-icons";
+import { FramerLogoIcon, PersonIcon } from "@radix-ui/react-icons";
 import { formatDate } from "@/helpers/formatDate";
 import ChatAvatar from "./ChatAvatar";
 
@@ -10,11 +10,13 @@ export default function ChatList({
   activeChat,
   setActiveChat,
   onAddNewChat,
+  currentUserId = null,
 }: {
   chats: Chat[];
   activeChat: number | null;
   setActiveChat: (activeChat: number) => void;
   onAddNewChat: () => void;
+  currentUserId?: number| null
 }) {
   return (
     <div
@@ -27,8 +29,14 @@ export default function ChatList({
           overscrollBehavior: "contain",
         }}
       >
-        {chats.map((chat) => (
-          <div
+        {chats.map((chat) => {
+          const isGroup: boolean = chat.chat_type === "group";
+          const chatMembers = !isGroup && currentUserId?
+          chat.members?.find((m)=> m.id !== currentUserId):null;
+          const chatName: string = isGroup ? (chat.name || "Group chat"):
+          (chatMembers?.username ?? chatMembers?.email?? chat.name ?? "Private chat")
+
+          return (<div
             key={chat.id}
             onClick = {() => setActiveChat(chat.id)}
             className={`p-4 flex ${
@@ -39,8 +47,8 @@ export default function ChatList({
           >
             <div className="w-full flex items-center gap-3">
               <ChatAvatar
-                name={"Chat"}
-                photoUrl={null}
+                name={chatName}
+                photoUrl={isGroup? null :(chatMembers?.avatarUrl ?? null) }
                 chatId={chat.id}
                 size="md"
               />
@@ -49,11 +57,12 @@ export default function ChatList({
               <div className="flex-1 min-w-0 flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    {chat.chat_type === "group" && (
+                    {isGroup ? (
                       <FramerLogoIcon className="w-4 h-4 flex-shrink-0" />
-                    )}
+                    ):
+                    <PersonIcon className="w-4 h-4 flex-shrink-0" />}
                     <h3 className="text-base font-semibold truncate">
-                      Chat name
+                      {chatName}
                     </h3>
                   </div>
                   <p
@@ -76,7 +85,7 @@ export default function ChatList({
               </div>
             </div>
           </div>
-        ))}
+)})}
       </div>
 
       <div className="mt-5 ml-[80%]">
