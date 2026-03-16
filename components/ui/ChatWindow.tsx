@@ -1,5 +1,5 @@
 import { Message } from "@/lib/types";
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import MessageBubble from "./MessageBubble";
 import { Chat } from "@/lib/types"; 
 import { updateChatAPI, deleteChatAPI } from "@/lib/api/chats";
@@ -32,6 +32,11 @@ export default function ChatWindow({
   const [editName, setEditName] = useState ("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  useEffect(()=>{
+    setIsEditing(false);
+    setShowDeleteConfirm(false);
+    setEditName("");
+  }, [chatId]);
 
   if(!chatId){
     return (
@@ -75,6 +80,7 @@ export default function ChatWindow({
       setShowDeleteConfirm(false);
     }
   }
+
   
   return (
     <div
