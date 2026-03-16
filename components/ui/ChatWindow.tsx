@@ -13,7 +13,7 @@ interface ChatWindowProps {
   handleDeleteMessage: (id: number | null) => void;
   onChatUpdated?: (chat: Chat)=> void;
   activeChat: Chat|null;
-  onChatDeleted?: (chatId: number) => void;
+  onChatDeleted?: (payload: { chatId: number }) => void;
 }
 
 export default function ChatWindow({ 
@@ -68,7 +68,12 @@ export default function ChatWindow({
       return;
     }
 
-    const response = await deleteChatAPI(chatId)
+    const deleted = await deleteChatAPI(chatId);
+
+    if(deleted){
+      onChatDeleted?.({ chatId });
+      setShowDeleteConfirm(false);
+    }
   }
   
   return (
@@ -104,7 +109,6 @@ export default function ChatWindow({
       )}
       {activeChat && !isEditing && (
         <div className="flex gap-2">
-          {activeChat.chat_type === "group" && (
             <>
               <button
                 onClick={handleEditClick}
@@ -121,7 +125,6 @@ export default function ChatWindow({
                 <TrashIcon className="w-4 h-4" />
               </button>
             </>
-          )}
         </div>
       )}
     </div>
@@ -154,6 +157,17 @@ export default function ChatWindow({
           >Send</button>
         </div>
       </div>
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 max-w-sm">
+            <p className="mb-4">Are you shure you want delete this chat?</p>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 border rounded">Cancel</button>
+              <button onClick={handleConfirmDelete} className="px-4 py-2 bg-red-500 text-white rounded">Yes</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -137,6 +137,7 @@ function ChatContent() {
           handleDeleteMessage={handleDeleteMessage}
           activeChat = {activeChat}
           onChatUpdated={handleChatUpdated}
+          onChatDeleted={handleChatDeleted}
         />
       }
 
