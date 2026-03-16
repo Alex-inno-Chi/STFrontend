@@ -42,8 +42,19 @@ export const updateChatAPI = async (chatId: number, chatName: {name?: string}): 
 
 export const deleteChatAPI = async (chatId: number): Promise<boolean> => {
   try{
+    const response = await DELETE(ApiEndpoints.CHATS(String(chatId)));
+    
+    if (response.ok) {
+      toast.success("Chat deleted");
+      return true;
+    }
+
+    toast.error(response.error ?? "Failed to delete chat");
+    
     return false;
   }catch(error){
+    toast.error(`Error: ${error}`);
+
     return false;
   }
 }

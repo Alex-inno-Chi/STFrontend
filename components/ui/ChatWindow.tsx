@@ -3,7 +3,7 @@ import {useState} from "react"
 import MessageBubble from "./MessageBubble";
 import { Chat } from "@/lib/types"; 
 import { updateChatAPI, deleteChatAPI } from "@/lib/api/chats";
-import { Pencil1Icon } from "@radix-ui/react-icons";
+import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 
 interface ChatWindowProps {
   userId: number | null;
@@ -13,6 +13,7 @@ interface ChatWindowProps {
   handleDeleteMessage: (id: number | null) => void;
   onChatUpdated?: (chat: Chat)=> void;
   activeChat: Chat|null;
+  onChatDeleted?: (chatId: number) => void;
 }
 
 export default function ChatWindow({ 
@@ -22,12 +23,14 @@ export default function ChatWindow({
     setNewMessage,
     handleDeleteMessage,
     activeChat,
-    onChatUpdated
+    onChatUpdated,
+    onChatDeleted
  }: ChatWindowProps) {
 
   const [inputValueMessage, setInputValueMessage] = useState("");
   const [isEditing, setIsEditing] = useState (false);
   const [editName, setEditName] = useState ("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 
   if(!chatId){
@@ -59,6 +62,15 @@ export default function ChatWindow({
 
   }
 
+  const handleConfirmDelete = async () => {
+    if(!chatId || !onChatDeleted){
+
+      return;
+    }
+
+    const response = await deleteChatAPI(chatId)
+  }
+  
   return (
     <div
       className={`sm:flex ${chatId ? "flex" : "hidden"} flex-1 flex-col h-full max-h-screen relative`}
@@ -101,13 +113,13 @@ export default function ChatWindow({
               >
                 <Pencil1Icon className="w-4 h-4" />
               </button>
-              {/* <button
+              <button
                 onClick={() => setShowDeleteConfirm(true)}
                 className="p-1.5 rounded hover:bg-gray-100 text-red-600"
                 aria-label="Delete chat"
               >
                 <TrashIcon className="w-4 h-4" />
-              </button> */}
+              </button>
             </>
           )}
         </div>
