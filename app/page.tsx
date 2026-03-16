@@ -18,8 +18,12 @@ function ChatContent() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null)
 
   const { activeChatId, setActiveChatId } = useChatStore();
+  const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
 
 
+  const handleChatUpdated = useCallback((updated: Chat)=>{
+    setChats((prev) => prev.map((c)=>(c.id === updated.id? updated:c)))
+  }, [])
 
   // WebSocket event handlers
   const handleNewMessage = useCallback(
@@ -131,6 +135,8 @@ function ChatContent() {
           messages={messages}
           setNewMessage={setNewMessage}
           handleDeleteMessage={handleDeleteMessage}
+          activeChat = {activeChat}
+          onChatUpdated={handleChatUpdated}
         />
       }
 

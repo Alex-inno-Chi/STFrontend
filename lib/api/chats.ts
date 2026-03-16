@@ -22,7 +22,7 @@ export const getChatsAPI = async (): Promise<Chat[] | null> => {
   }
 };
 
-export const updateChatsAPI = async (chatId: number, chatName: {name?: string}): Promise<Chat[] | null> => {
+export const updateChatAPI = async (chatId: number, chatName: {name?: string}): Promise<Chat | null> => {
   try{
     const response = await PATCH(ApiEndpoints.CHATS(String(chatId)), chatName)
 
