@@ -58,9 +58,9 @@ export const deleteChatAPI = async (chatId: number): Promise<boolean> => {
     return false;
   }
 }
-export const createPrivateChatAPI = async (userId: number): Promise<Chat|null> => {
+export const createPrivateChatAPI = async (otherUserId: number): Promise<Chat|null> => {
   try{
-    const response = await POST(ApiEndpoints.PRIVATE_CHATS, {userId});
+    const response = await POST(ApiEndpoints.PRIVATE_CHATS, {otherUserId});
 
     if (response.ok) {
       toast.success("Private chat created");
@@ -78,7 +78,7 @@ export const createPrivateChatAPI = async (userId: number): Promise<Chat|null> =
   }
 }
 
-export const createGroupChatAPI = async (payload:{name: string; membersIds: number[]}): Promise<Chat|null> => {
+export const createGroupChatAPI = async (payload:{name: string; memberIds: number[]}): Promise<Chat|null> => {
   try{
     const response = await POST(ApiEndpoints.GROUP_CHATS, payload);
 

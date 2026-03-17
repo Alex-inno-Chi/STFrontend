@@ -144,6 +144,16 @@ function ChatContent() {
       <NewChatModal
         isOpen={isNewChatModalOpen}
         onClose={() => setIsNewChatModalOpen(false)}
+        onChatCreated={(chat) => {
+          setChats((prev) => {
+          if (prev.some((c) => c.id === chat.id)) return prev;
+
+          return [...prev, chat];
+          });
+          
+          setActiveChatId(chat.id);
+        }}
+        currentUserId={currentUserId}
       />
     </div>
   );
