@@ -12,9 +12,11 @@ export const getUsersAPI = async (): Promise<User[] | []> => {
       return response.data;
     }
     toast.error(`Error: ${response.message}`);
+
     return [];
   } catch (error) {
     toast(`Error: ${error}`);
+    
     return [];
   }
 };
