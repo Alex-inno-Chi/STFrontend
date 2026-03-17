@@ -1,6 +1,6 @@
 "use client";
 import { toast } from "react-toastify";
-import { GET, PATCH, DELETE } from "./client";
+import { GET, PATCH, DELETE, POST } from "./client";
 import { ApiEndpoints } from "./api-endpoints";
 import { Chat } from "../types";
 
@@ -56,5 +56,44 @@ export const deleteChatAPI = async (chatId: number): Promise<boolean> => {
     toast.error(`Error: ${error}`);
 
     return false;
+  }
+}
+export const createPrivateChatAPI = async (userId: number): Promise<Chat|null> => {
+  try{
+    const response = await POST(ApiEndpoints.PRIVATE_CHATS, {userId});
+
+    if (response.ok) {
+      toast.success("Private chat created");
+
+      return response.data;
+    }
+
+    toast.error(response.error?? "Failed to create private chat");
+
+    return null;
+  }catch(error){
+    toast.error(`Error: ${error}`);
+    
+    return null;
+  }
+}
+
+export const createGroupChatAPI = async (payload:{name: string; membersIds: number[]}): Promise<Chat|null> => {
+  try{
+    const response = await POST(ApiEndpoints.GROUP_CHATS, payload);
+
+    if (response.ok) {
+      toast.success("Group chat created");
+
+      return response.data;
+    }
+
+    toast.error(response.error?? "Failed to create group chat");
+
+    return null;
+  }catch(error){
+    toast.error(`Error: ${error}`);
+    
+    return null;
   }
 }
