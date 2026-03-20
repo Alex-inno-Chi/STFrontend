@@ -27,23 +27,23 @@ export const registerUserAPI = async (
       return response.data.user;
     }
 
-    toast.error(`Error registration failed`)
+    toast.error(`Error registration failed`);
 
     return null;
   } catch (error) {
     toast(`Registaration error: ${error}`);
-    
+
     return null;
   }
 };
 
-export const loginUserAPI = async(
+export const loginUserAPI = async (
   payload: loginUserData
-): Promise<User | null> =>{
-  try{
+): Promise<User | null> => {
+  try {
     const response = await POST(ApiEndpoints.LOGIN_USER, payload);
 
-    if(response.ok){
+    if (response.ok) {
       toast.success(`Login successful`);
 
       return response.data.user;
@@ -52,24 +52,23 @@ export const loginUserAPI = async(
     toast.error(`Error login failed`);
 
     return null;
-  }catch(error){
+  } catch (error) {
     toast(`Login error: ${error}`);
 
     return null;
   }
-}
+};
 
 export const getCurrentUserAPI = async (): Promise<User | null> => {
   try {
     const response = await GET(ApiEndpoints.USER);
 
     if (response.ok) {
-
       return response.data;
     }
 
     return null;
-  } catch (error){
+  } catch (error) {
     toast(`Login error: ${error}`);
 
     return null;
@@ -86,7 +85,7 @@ export const logoutUserAPI = async (): Promise<boolean> => {
     }
 
     return false;
-  } catch (error){
+  } catch (error) {
     toast(`Login error: ${error}`);
 
     return false;

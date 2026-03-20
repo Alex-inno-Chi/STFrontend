@@ -31,12 +31,12 @@ export interface Message {
 }
 
 export enum TypesOfRelationships {
-  Friend = 'friend',
-  Follower = 'follower',
-  Blocked = 'blocked'
-} 
+  Friend = "friend",
+  Follower = "follower",
+  Blocked = "blocked",
+}
 
-export interface Relationship{
+export interface Relationship {
   id: number;
   type: TypesOfRelationships;
   relatedUserId: number;

@@ -10,21 +10,24 @@ import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
 import { getCurrentUserAPI } from "@/lib/api/auth";
-import { sendMessageAPI, deleteMessageAPI } from "@/lib/api/messages";
+import {
+  sendMessageAPI,
+  deleteMessageAPI,
+  editMessageAPI,
+} from "@/lib/api/messages";
 
 function ChatContent() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null)
-  
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
   const { activeChatId, setActiveChatId } = useChatStore();
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
 
-
-  const handleChatUpdated = useCallback((updated: Chat)=>{
-    setChats((prev) => prev.map((c)=>(c.id === updated.id? updated:c)))
-  }, [])
+  const handleChatUpdated = useCallback((updated: Chat) => {
+    setChats((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+  }, []);
 
   // WebSocket event handlers
   const handleNewMessage = useCallback(
@@ -38,7 +41,6 @@ function ChatContent() {
     },
     [activeChatId]
   );
-
 
   const handleMessageDeleted = useCallback(
     (payload: { chatId: number; messageId: number }) => {
@@ -86,36 +88,55 @@ function ChatContent() {
     }
   }, [activeChatId, setActiveChatId]);
 
-  const setNewMessage = useCallback(async (
-    messageText: string,
-    chatId: number | null
-  ) => {
-    if(!chatId){
-      return
-    }
+  const setNewMessage = useCallback(
+    async (messageText: string, chatId: number | null) => {
+      if (!chatId) {
+        return;
+      }
 
-    const message = await sendMessageAPI(chatId, messageText);
+      const message = await sendMessageAPI(chatId, messageText);
 
-    if(message){
-      setMessages((prev) => {
-        if(prev.some((m) => m.id === message.id)){
-          return prev;
-        }
+      if (message) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === message.id)) {
+            return prev;
+          }
 
-        return [...prev, message]
-      })
-    }
-  }, []);
+          return [...prev, message];
+        });
+      }
+    },
+    []
+  );
 
-  const handleDeleteMessage =  useCallback(async (id: number | null) => {
-    if (!id || !activeChatId) return;
+  const handleDeleteMessage = useCallback(
+    async (id: number | null) => {
+      if (!id || !activeChatId) return;
 
-    const ok = await deleteMessageAPI(activeChatId, id);
-    
-    if (ok) {
-      setMessages((prev) => prev.filter((m) => m.id !== id));
-    }
-  }, [activeChatId]);
+      const ok = await deleteMessageAPI(activeChatId, id);
+
+      if (ok) {
+        setMessages((prev) => prev.filter((m) => m.id !== id));
+      }
+    },
+    [activeChatId]
+  );
+
+  const handleEditMessage = useCallback(
+    async (messageId: number, newText: string) => {
+      if (!activeChatId) return;
+      const text = newText.trim();
+      if (!text) return;
+
+      const updated = await editMessageAPI(activeChatId, messageId, text);
+      if (updated) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === messageId ? updated : m))
+        );
+      }
+    },
+    [activeChatId]
+  );
 
   useEffect(() => {
     async function getChats() {
@@ -139,13 +160,13 @@ function ChatContent() {
     setActiveChatId(activeChat);
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     async function loadCurrentUser() {
       const user = await getCurrentUserAPI();
       setCurrentUserId(user?.id ?? null);
-    } 
+    }
     loadCurrentUser();
-  },[])
+  }, []);
 
   return (
     <div className="flex h-full">
@@ -164,9 +185,10 @@ function ChatContent() {
           messages={messages}
           setNewMessage={setNewMessage}
           handleDeleteMessage={handleDeleteMessage}
-          activeChat = {activeChat}
+          activeChat={activeChat}
           onChatUpdated={handleChatUpdated}
           onChatDeleted={handleChatDeleted}
+          // handleEditMessage = {handleEditMessage}
         />
       }
 
@@ -175,11 +197,11 @@ function ChatContent() {
         onClose={() => setIsNewChatModalOpen(false)}
         onChatCreated={(chat) => {
           setChats((prev) => {
-          if (prev.some((c) => c.id === chat.id)) return prev;
+            if (prev.some((c) => c.id === chat.id)) return prev;
 
-          return [...prev, chat];
+            return [...prev, chat];
           });
-          
+
           setActiveChatId(chat.id);
         }}
         currentUserId={currentUserId}

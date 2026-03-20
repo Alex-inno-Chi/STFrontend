@@ -16,7 +16,7 @@ export default function ChatList({
   activeChat: number | null;
   setActiveChat: (activeChat: number) => void;
   onAddNewChat: () => void;
-  currentUserId?: number| null
+  currentUserId?: number | null;
 }) {
   return (
     <div
@@ -31,60 +31,70 @@ export default function ChatList({
       >
         {chats.map((chat) => {
           const isGroup: boolean = chat.chat_type === "group";
-          const chatMembers = !isGroup && currentUserId?
-          chat.members?.find((m)=> m.id !== currentUserId):null;
-          const chatName: string = isGroup ? (chat.name || "Group chat"):
-          (chatMembers?.username ?? chatMembers?.email?? chat.name ?? "Private chat")
+          const chatMembers =
+            !isGroup && currentUserId
+              ? chat.members?.find((m) => m.id !== currentUserId)
+              : null;
+          const chatName: string = isGroup
+            ? chat.name || "Group chat"
+            : (chatMembers?.username ??
+              chatMembers?.email ??
+              chat.name ??
+              "Private chat");
 
-          return (<div
-            key={chat.id}
-            onClick = {() => setActiveChat(chat.id)}
-            className={`p-4 flex ${
-              activeChat === chat.id
-                ? "bg-blue-500 text-white"
-                : "bg-gray-50 hover:bg-gray-100 cursor-pointer"
-            } border-b border-gray-200`}
-          >
-            <div className="w-full flex items-center gap-3">
-              <ChatAvatar
-                name={chatName}
-                photoUrl={isGroup? null :(chatMembers?.avatarUrl ?? null) }
-                chatId={chat.id}
-                size="md"
-              />
+          return (
+            <div
+              key={chat.id}
+              onClick={() => setActiveChat(chat.id)}
+              className={`p-4 flex ${
+                activeChat === chat.id
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-50 hover:bg-gray-100 cursor-pointer"
+              } border-b border-gray-200`}
+            >
+              <div className="w-full flex items-center gap-3">
+                <ChatAvatar
+                  name={chatName}
+                  photoUrl={isGroup ? null : (chatMembers?.avatarUrl ?? null)}
+                  chatId={chat.id}
+                  size="md"
+                />
 
-              {/* Chat Info */}
-              <div className="flex-1 min-w-0 flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    {isGroup ? (
-                      <FramerLogoIcon className="w-4 h-4 flex-shrink-0" />
-                    ): null}
-                    <h3 className="text-base font-semibold truncate">
-                      {chatName}
-                    </h3>
+                {/* Chat Info */}
+                <div className="flex-1 min-w-0 flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      {isGroup ? (
+                        <FramerLogoIcon className="w-4 h-4 flex-shrink-0" />
+                      ) : null}
+                      <h3 className="text-base font-semibold truncate">
+                        {chatName}
+                      </h3>
+                    </div>
+                    <p
+                      className={`text-sm ${
+                        activeChat === chat.id
+                          ? "text-white/80"
+                          : "text-gray-500"
+                      } truncate`}
+                    >
+                      {/* Last message preview could go here */}
+                    </p>
                   </div>
-                  <p
-                    className={`text-sm ${
-                      activeChat === chat.id ? "text-white/80" : "text-gray-500"
-                    } truncate`}
-                  >
-                    {/* Last message preview could go here */}
-                  </p>
-                </div>
 
-                {/* Timestamp */}
-                <span
-                  className={`text-xs flex-shrink-0 ml-2 ${
-                    activeChat === chat.id ? "text-white/70" : "text-gray-500"
-                  }`}
-                >
-                  {formatDate(chat.updated_at || "")}
-                </span>
+                  {/* Timestamp */}
+                  <span
+                    className={`text-xs flex-shrink-0 ml-2 ${
+                      activeChat === chat.id ? "text-white/70" : "text-gray-500"
+                    }`}
+                  >
+                    {formatDate(chat.updated_at || "")}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-)})}
+          );
+        })}
       </div>
 
       <div className="mt-5 ml-[80%]">

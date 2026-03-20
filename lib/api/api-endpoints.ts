@@ -9,5 +9,5 @@ export const ApiEndpoints = {
   GROUP_CHATS: "/chats/group",
   MESSAGES: (chatId: string) => `/messages/${chatId}`,
   MESSAGES_ROOT: "/messages",
-  RELATIONSHIPS: "/relationships"
+  RELATIONSHIPS: "/relationships",
 };
