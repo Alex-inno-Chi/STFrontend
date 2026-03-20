@@ -10,7 +10,7 @@ import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
 import { getCurrentUserAPI } from "@/lib/api/auth";
-import { sendMessageAPI } from "@/lib/api/messages";
+import { sendMessageAPI, deleteMessageAPI } from "@/lib/api/messages";
 
 function ChatContent() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
@@ -38,6 +38,7 @@ function ChatContent() {
     },
     [activeChatId]
   );
+
 
   const handleMessageDeleted = useCallback(
     (payload: { chatId: number; messageId: number }) => {
@@ -106,7 +107,15 @@ function ChatContent() {
     }
   }, []);
 
-  const handleDeleteMessage = () => {};
+  const handleDeleteMessage =  useCallback(async (id: number | null) => {
+    if (!id || !activeChatId) return;
+
+    const ok = await deleteMessageAPI(activeChatId, id);
+    
+    if (ok) {
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+    }
+  }, [activeChatId]);
 
   useEffect(() => {
     async function getChats() {

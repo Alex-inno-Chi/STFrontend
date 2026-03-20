@@ -154,6 +154,7 @@ export default function ChatWindow({
          key = {message.id ?? `temp-${message.content}`}
          message={message}
          isMyOwnMessage = {message.sender_id === userId}
+         onDelete={handleDeleteMessage}
          />
         ))}
       </div>
