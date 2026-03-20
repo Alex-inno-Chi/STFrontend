@@ -10,13 +10,14 @@ import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
 import { getCurrentUserAPI } from "@/lib/api/auth";
+import { sendMessageAPI } from "@/lib/api/messages";
 
 function ChatContent() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null)
-
+  
   const { activeChatId, setActiveChatId } = useChatStore();
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
 
@@ -84,7 +85,26 @@ function ChatContent() {
     }
   }, [activeChatId, setActiveChatId]);
 
-  function setNewMessage() {}
+  const setNewMessage = useCallback(async (
+    messageText: string,
+    chatId: number | null
+  ) => {
+    if(!chatId){
+      return
+    }
+
+    const message = await sendMessageAPI(chatId, messageText);
+
+    if(message){
+      setMessages((prev) => {
+        if(prev.some((m) => m.id === message.id)){
+          return prev;
+        }
+
+        return [...prev, message]
+      })
+    }
+  }, []);
 
   const handleDeleteMessage = () => {};
 

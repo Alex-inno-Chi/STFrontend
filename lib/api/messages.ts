@@ -39,7 +39,7 @@ export const sendMessageAPI = async(
   content: string
 ): Promise<Message | null> => {
   try {
-    const response = await POST(ApiEndpoints.MESSAGES(String(chatId)),{content});
+    const response = await POST(ApiEndpoints.MESSAGES_ROOT,{chatId, content});
     
     if (response.ok) {
       return response.data;
@@ -60,7 +60,7 @@ export const deleteMessageAPI = async(
   messageId: number
 ): Promise<boolean> => {
   try {
-    const response = await DELETE(ApiEndpoints.MESSAGES(String(chatId)), String(messageId));
+    const response = await DELETE(ApiEndpoints.MESSAGES_ROOT,{chatId, id: messageId});
     
     if (response.ok) {
       return response.data;
