@@ -80,6 +80,17 @@ export default function ChatWindow({
       setShowDeleteConfirm(false);
     }
   }
+  
+  const handleSend = () => {
+    const messageText = inputValueMessage.trim();
+
+    if(!messageText || !chatId ){
+      return
+    }
+
+    setNewMessage(messageText, chatId);
+    setInputValueMessage("");
+  }
 
   
   return (
@@ -151,6 +162,12 @@ export default function ChatWindow({
       <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
         <div className="flex gap-2">
           <input
+          onKeyDown={(e) => {
+            if(e.key === "Enter" && !e.shiftKey){
+              e.preventDefault();
+              handleSend();
+            }
+          }}
           type = "text"          
           value = {inputValueMessage}
           onChange={(e) => setInputValueMessage(e.target.value)}
@@ -158,6 +175,7 @@ export default function ChatWindow({
           className="flex-1 px-3 py-2 border rounded-lg border-gray-300 "         
           />
           <button
+          onClick ={handleSend}
           type="button"
           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >Send</button>
