@@ -2,8 +2,6 @@ import { Message } from "@/lib/types";
 import { useState, useEffect } from "react";
 import MessageBubble from "./MessageBubble";
 import { Chat } from "@/lib/types";
-import { updateChatAPI, deleteChatAPI } from "@/lib/api/chats";
-import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 
 interface ChatWindowProps {
   userId: number | null;
