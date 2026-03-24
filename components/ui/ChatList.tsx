@@ -1,9 +1,10 @@
 "use client";
 
 import { Chat } from "@/lib/types";
-import { FramerLogoIcon, PersonIcon } from "@radix-ui/react-icons";
+import { FramerLogoIcon } from "@radix-ui/react-icons";
 import { formatDate } from "@/helpers/formatDate";
 import ChatAvatar from "./ChatAvatar";
+import { AppContextMenu } from "./AppContextMenu";
 
 export default function ChatList({
   chats = [],
@@ -11,12 +12,16 @@ export default function ChatList({
   setActiveChat,
   onAddNewChat,
   currentUserId = null,
+  onRequestRenameChat,
+  onRequestDeleteChat,
 }: {
   chats: Chat[];
   activeChat: number | null;
   setActiveChat: (activeChat: number) => void;
   onAddNewChat: () => void;
   currentUserId?: number | null;
+  onRequestRenameChat: (chat: Chat) => void;
+  onRequestDeleteChat: (chat: Chat) => void;
 }) {
   return (
     <div
@@ -43,56 +48,73 @@ export default function ChatList({
               "Private chat");
 
           return (
-            <div
+            <AppContextMenu
               key={chat.id}
-              onClick={() => setActiveChat(chat.id)}
-              className={`p-4 flex ${
-                activeChat === chat.id
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-50 hover:bg-gray-100 cursor-pointer"
-              } border-b border-gray-200`}
+              items={[
+                {
+                  label: "Rename",
+                  onSelect: () => onRequestRenameChat(chat),
+                },
+                {
+                  label: "Delete",
+                  onSelect: () => onRequestDeleteChat(chat),
+                  destructive: true,
+                },
+              ]}
             >
-              <div className="w-full flex items-center gap-3">
-                <ChatAvatar
-                  name={chatName}
-                  photoUrl={isGroup ? null : (chatMembers?.avatarUrl ?? null)}
-                  chatId={chat.id}
-                  size="md"
-                />
+              <div
+                key={chat.id}
+                onClick={() => setActiveChat(chat.id)}
+                className={`p-4 flex ${
+                  activeChat === chat.id
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                } border-b border-gray-200`}
+              >
+                <div className="w-full flex items-center gap-3">
+                  <ChatAvatar
+                    name={chatName}
+                    photoUrl={isGroup ? null : (chatMembers?.avatarUrl ?? null)}
+                    chatId={chat.id}
+                    size="md"
+                  />
 
-                {/* Chat Info */}
-                <div className="flex-1 min-w-0 flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      {isGroup ? (
-                        <FramerLogoIcon className="w-4 h-4 flex-shrink-0" />
-                      ) : null}
-                      <h3 className="text-base font-semibold truncate">
-                        {chatName}
-                      </h3>
+                  {/* Chat Info */}
+                  <div className="flex-1 min-w-0 flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {isGroup ? (
+                          <FramerLogoIcon className="w-4 h-4 flex-shrink-0" />
+                        ) : null}
+                        <h3 className="text-base font-semibold truncate">
+                          {chatName}
+                        </h3>
+                      </div>
+                      <p
+                        className={`text-sm ${
+                          activeChat === chat.id
+                            ? "text-white/80"
+                            : "text-gray-500"
+                        } truncate`}
+                      >
+                        {/* Last message preview could go here */}
+                      </p>
                     </div>
-                    <p
-                      className={`text-sm ${
-                        activeChat === chat.id
-                          ? "text-white/80"
-                          : "text-gray-500"
-                      } truncate`}
-                    >
-                      {/* Last message preview could go here */}
-                    </p>
-                  </div>
 
-                  {/* Timestamp */}
-                  <span
-                    className={`text-xs flex-shrink-0 ml-2 ${
-                      activeChat === chat.id ? "text-white/70" : "text-gray-500"
-                    }`}
-                  >
-                    {formatDate(chat.updated_at || "")}
-                  </span>
+                    {/* Timestamp */}
+                    <span
+                      className={`text-xs flex-shrink-0 ml-2 ${
+                        activeChat === chat.id
+                          ? "text-white/70"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {formatDate(chat.updated_at || "")}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </AppContextMenu>
           );
         })}
       </div>
