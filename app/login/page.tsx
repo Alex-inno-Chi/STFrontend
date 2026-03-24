@@ -71,12 +71,12 @@ export default function AuthPage() {
     try {
       let user: any | null = null;
 
-      if(isLogin){
-        user = await loginUserAPI(
-          {email: formData.email, 
-          password: formData.password},
-          );
-      }else{
+      if (isLogin) {
+        user = await loginUserAPI({
+          email: formData.email,
+          password: formData.password,
+        });
+      } else {
         user = await registerUserAPI({
           username: formData.username,
           email: formData.email,
@@ -84,14 +84,11 @@ export default function AuthPage() {
         });
       }
 
-      if(!user){
-        setErrors((prev) =>({
+      if (!user) {
+        setErrors((prev) => ({
           ...prev,
-          server: isLogin
-          ?"Invalid email or password"
-          : "Registration failed"
-
-        }))
+          server: isLogin ? "Invalid email or password" : "Registration failed",
+        }));
         setIsLoading(false);
         return;
       }
@@ -101,11 +98,10 @@ export default function AuthPage() {
       setTimeout(() => {
         router.push("/");
       }, 1000);
-
     } catch {
-      setErrors((prev) =>({
+      setErrors((prev) => ({
         ...prev,
-        server: "Woops something went wrong please try again"
+        server: "Woops something went wrong please try again",
       }));
       setIsLoading(false);
     }

@@ -16,7 +16,7 @@ export const getUsersAPI = async (): Promise<User[] | []> => {
     return [];
   } catch (error) {
     toast(`Error: ${error}`);
-    
+
     return [];
   }
 };

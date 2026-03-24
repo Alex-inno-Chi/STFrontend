@@ -3,27 +3,42 @@ import { useEffect, useState, useCallback } from "react";
 import ChatList from "@/components/ui/ChatList";
 import ChatWindow from "@/components/ui/ChatWindow";
 import { Chat, Message } from "@/lib/types";
-import { getChatsAPI } from "@/lib/api/chats";
+import { getChatsAPI, deleteChatAPI, updateChatAPI } from "@/lib/api/chats";
 import { getMessagesAPI } from "@/lib/api/messages";
 import NewChatModal from "@/components/ui/NewChatModal";
 import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
 import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
 import { getCurrentUserAPI } from "@/lib/api/auth";
+import {
+  sendMessageAPI,
+  deleteMessageAPI,
+  editMessageAPI,
+} from "@/lib/api/messages";
+import EditChatNameDialog from "@/components/ui/EditChatNameDialog";
+import EditMessageDialog from "@/components/ui/EditMessageDialog";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 function ChatContent() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null)
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   const { activeChatId, setActiveChatId } = useChatStore();
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
 
+  const [renameChatTarget, setRenameChatTarget] = useState<Chat | null>(null);
+  const [deleteChatTarget, setDeleteChatTarget] = useState<Chat | null>(null);
+  const [editMessageState, setEditMessageState] = useState<{
+    id: number;
+    content: string;
+  } | null>(null);
+  const [deleteMessageId, setDeleteMessageId] = useState<number | null>(null);
 
-  const handleChatUpdated = useCallback((updated: Chat)=>{
-    setChats((prev) => prev.map((c)=>(c.id === updated.id? updated:c)))
-  }, [])
+  const handleChatUpdated = useCallback((updated: Chat) => {
+    setChats((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+  }, []);
 
   // WebSocket event handlers
   const handleNewMessage = useCallback(
@@ -84,9 +99,55 @@ function ChatContent() {
     }
   }, [activeChatId, setActiveChatId]);
 
-  function setNewMessage() {}
+  const setNewMessage = useCallback(
+    async (messageText: string, chatId: number | null) => {
+      if (!chatId) {
+        return;
+      }
 
-  const handleDeleteMessage = () => {};
+      const message = await sendMessageAPI(chatId, messageText);
+
+      if (message) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === message.id)) {
+            return prev;
+          }
+
+          return [...prev, message];
+        });
+      }
+    },
+    []
+  );
+
+  const handleDeleteMessage = useCallback(
+    async (id: number | null) => {
+      if (!id || !activeChatId) return;
+
+      const ok = await deleteMessageAPI(activeChatId, id);
+
+      if (ok) {
+        setMessages((prev) => prev.filter((m) => m.id !== id));
+      }
+    },
+    [activeChatId]
+  );
+
+  const handleEditMessage = useCallback(
+    async (messageId: number, newText: string) => {
+      if (!activeChatId) return;
+      const text = newText.trim();
+      if (!text) return;
+
+      const updated = await editMessageAPI(activeChatId, messageId, text);
+      if (updated) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === messageId ? updated : m))
+        );
+      }
+    },
+    [activeChatId]
+  );
 
   useEffect(() => {
     async function getChats() {
@@ -110,13 +171,13 @@ function ChatContent() {
     setActiveChatId(activeChat);
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     async function loadCurrentUser() {
       const user = await getCurrentUserAPI();
       setCurrentUserId(user?.id ?? null);
-    } 
+    }
     loadCurrentUser();
-  },[])
+  }, []);
 
   return (
     <div className="flex h-full">
@@ -126,6 +187,8 @@ function ChatContent() {
         setActiveChat={onSetActiveChat}
         onAddNewChat={() => setIsNewChatModalOpen(true)}
         currentUserId={currentUserId}
+        onRequestRenameChat={setRenameChatTarget}
+        onRequestDeleteChat={setDeleteChatTarget}
       />
 
       {
@@ -134,10 +197,11 @@ function ChatContent() {
           chatId={activeChatId}
           messages={messages}
           setNewMessage={setNewMessage}
-          handleDeleteMessage={handleDeleteMessage}
-          activeChat = {activeChat}
-          onChatUpdated={handleChatUpdated}
-          onChatDeleted={handleChatDeleted}
+          activeChat={activeChat}
+          onRequestEditMessage={(id, content) =>
+            setEditMessageState({ id, content })
+          }
+          onRequestDeleteMessage={setDeleteMessageId}
         />
       }
 
@@ -146,14 +210,65 @@ function ChatContent() {
         onClose={() => setIsNewChatModalOpen(false)}
         onChatCreated={(chat) => {
           setChats((prev) => {
-          if (prev.some((c) => c.id === chat.id)) return prev;
+            if (prev.some((c) => c.id === chat.id)) return prev;
 
-          return [...prev, chat];
+            return [...prev, chat];
           });
-          
+
           setActiveChatId(chat.id);
         }}
         currentUserId={currentUserId}
+      />
+      <EditChatNameDialog
+        open={renameChatTarget !== null}
+        onOpenChange={(o) => !o && setRenameChatTarget(null)}
+        initialName={renameChatTarget?.name ?? ""}
+        onSave={async (name) => {
+          if (!renameChatTarget) return;
+          const updated = await updateChatAPI(renameChatTarget.id, { name });
+          if (updated) {
+            handleChatUpdated(updated);
+            setRenameChatTarget(null);
+          }
+        }}
+      />
+      <ConfirmDialog
+        open={deleteChatTarget !== null}
+        onOpenChange={(o) => !o && setDeleteChatTarget(null)}
+        title="Delete chat?"
+        description="This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={async () => {
+          if (!deleteChatTarget) return;
+          const ok = await deleteChatAPI(deleteChatTarget.id);
+          if (ok) {
+            handleChatDeleted({ chatId: deleteChatTarget.id });
+            setDeleteChatTarget(null);
+          }
+        }}
+      />
+      <EditMessageDialog
+        open={editMessageState !== null}
+        onOpenChange={(o) => !o && setEditMessageState(null)}
+        initialContent={editMessageState?.content ?? ""}
+        onSave={async (text) => {
+          if (!editMessageState) return;
+          await handleEditMessage(editMessageState.id, text);
+          setEditMessageState(null);
+        }}
+      />
+      <ConfirmDialog
+        open={deleteMessageId !== null}
+        onOpenChange={(o) => !o && setDeleteMessageId(null)}
+        title="Delete message?"
+        confirmLabel="Delete"
+        destructive
+        onConfirm={async () => {
+          if (deleteMessageId == null) return;
+          await handleDeleteMessage(deleteMessageId);
+          setDeleteMessageId(null);
+        }}
       />
     </div>
   );

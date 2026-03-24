@@ -7,51 +7,55 @@ import { createPrivateChatAPI, createGroupChatAPI } from "@/lib/api/chats";
 interface NewChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onChatCreated: (chat:Chat) => void;
-  currentUserId: number |null;
+  onChatCreated: (chat: Chat) => void;
+  currentUserId: number | null;
 }
 
 export default function NewChatModal({
   isOpen,
   onClose,
   onChatCreated,
-  currentUserId
+  currentUserId,
 }: NewChatModalProps) {
-
   const [mode, setMode] = useState<"private" | "group">("group");
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [groupName, setGroupName] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [selectedPrivateId, setSelectedPrivateId] = useState<number | null>(null);
+  const [selectedPrivateId, setSelectedPrivateId] = useState<number | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
 
-  useEffect(()=>{
-    if(!isOpen) {
+  useEffect(() => {
+    if (!isOpen) {
       return;
     }
 
-    getUsersAPI().then((list)=>{
-      setUsers(list.filter((u)=> u.id !== currentUserId))
-    })
+    getUsersAPI().then((list) => {
+      setUsers(list.filter((u) => u.id !== currentUserId));
+    });
 
     setMode("private");
     setSearch("");
     setGroupName("");
     setSelectedIds([]);
     setSelectedPrivateId(null);
-  }, [isOpen, currentUserId])
+  }, [isOpen, currentUserId]);
 
-  const filteredUsers = useMemo(() =>
-    users.filter((u) => {
-      const q = search.toLowerCase().trim();
+  const filteredUsers = useMemo(
+    () =>
+      users.filter((u) => {
+        const q = search.toLowerCase().trim();
 
-      if (!q) return true;
+        if (!q) return true;
 
-      const label = (u.username || u.email || "").toLowerCase();
+        const label = (u.username || u.email || "").toLowerCase();
 
-      return label.includes(q);
-  }), [users, search]);
+        return label.includes(q);
+      }),
+    [users, search]
+  );
 
   if (!isOpen) return null;
 
@@ -64,7 +68,7 @@ export default function NewChatModal({
   const canCreateGroup = groupName.trim().length > 0 && selectedIds.length > 0;
   const canCreatePrivate = !!selectedPrivateId;
 
-  const handleCreateChat = async() => {
+  const handleCreateChat = async () => {
     if (mode === "group") {
       if (!canCreateGroup) return;
 
@@ -94,7 +98,7 @@ export default function NewChatModal({
         onChatCreated(chat);
         onClose();
       }
-    }    
+    }
   };
 
   return (
@@ -110,44 +114,51 @@ export default function NewChatModal({
         <h2 className="text-xl font-semibold mb-4">Create New Chat</h2>
 
         <div className="mb-4 flex rounded-md border border-gray-200 bg-gray-50 p-0.5">
-          <button type="button"
+          <button
+            type="button"
             onClick={() => setMode("private")}
             className={`flex-1 rounded-md py-2 text-sm font-medium ${
               mode === "private"
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-gray-600"
-            }`}>
+            }`}
+          >
             Private Chat
           </button>
-          <button type="button"
+          <button
+            type="button"
             onClick={() => setMode("group")}
             className={`flex-1 rounded-md py-2 text-sm font-medium ${
               mode === "group"
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-gray-600"
-            }`}>
+            }`}
+          >
             Group Chat
           </button>
         </div>
 
-
         {/* {Body modal window depens what type of chat} */}
-        { mode === "group" ? (
+        {mode === "group" ? (
           <>
             <div className="mb-3">
-              <input type="text"
+              <input
+                type="text"
                 placeholder="Group Name"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></input>
             </div>
 
             <div className="mb-3">
-              <input type="text"
+              <input
+                type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search users..."
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></input>
             </div>
 
             <div className="mb-2">
@@ -178,7 +189,7 @@ export default function NewChatModal({
             </div>
 
             <div className="mb-4 max-h-48 space-y-1 overflow-y-auto rounded-md border border-gray-200 p-1">
-              {filteredUsers.map((u)=>{
+              {filteredUsers.map((u) => {
                 const label = u.username || u.email || "Unknown user";
                 const selected = selectedIds.includes(u.id!);
                 return (
@@ -194,24 +205,26 @@ export default function NewChatModal({
                       {label[0]?.toUpperCase()}
                     </div>
                     <span className="truncate text-gray-900">{label}</span>
-                  </button>)
+                  </button>
+                );
               })}
               {filteredUsers.length === 0 && (
                 <p className="px-2 py-3 text-center text-xs text-gray-400">
                   No users found
                 </p>
-              )
-              }
+              )}
             </div>
           </>
-        ):(
+        ) : (
           <>
             <div className="mb-3">
-              <input type="text"
+              <input
+                type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search users..."
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></input>
             </div>
 
             <div className="mb-2">
@@ -239,7 +252,7 @@ export default function NewChatModal({
             </div>
 
             <div className="mb-4 max-h-56 space-y-1 overflow-y-auto rounded-md border border-gray-200 p-1">
-              {filteredUsers.map((u)=>{
+              {filteredUsers.map((u) => {
                 const label = u.username || u.email || "Unknown user";
                 const selected = selectedPrivateId === u.id;
                 return (
@@ -262,18 +275,15 @@ export default function NewChatModal({
                 <p className="px-2 py-3 text-center text-xs text-gray-400">
                   No users found
                 </p>
-              )
-              }
+              )}
             </div>
-          </>      
-        )
-        }
+          </>
+        )}
         <button
           type="button"
           onClick={handleCreateChat}
           disabled={
-            loading ||
-            (mode === "group" ? !canCreateGroup : !canCreatePrivate)
+            loading || (mode === "group" ? !canCreateGroup : !canCreatePrivate)
           }
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >

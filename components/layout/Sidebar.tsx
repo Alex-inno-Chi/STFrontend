@@ -1,5 +1,10 @@
 "use client";
-import { ExitIcon, FaceIcon, Cross2Icon, PersonIcon } from "@radix-ui/react-icons";
+import {
+  ExitIcon,
+  FaceIcon,
+  Cross2Icon,
+  PersonIcon,
+} from "@radix-ui/react-icons";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAdminStore } from "@/lib/store/admin";
@@ -22,8 +27,9 @@ export default function Sidebar() {
     setSidebarIsOpen(false);
   }
 
-  const navItems = [{ name: "Chats", icon: FaceIcon, path: "/" },
-    {name: "Profile", icon: PersonIcon, path: "/user"}
+  const navItems = [
+    { name: "Chats", icon: FaceIcon, path: "/" },
+    { name: "Profile", icon: PersonIcon, path: "/user" },
   ];
 
   return (
@@ -79,9 +85,10 @@ export default function Sidebar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex items-center w-full p-2 rounded cursor-pointer text-red-600 hover:bg-gray-200">
-              <ExitIcon className="w-5 h-5 mr-2" />
-              <span>Logout</span>
+                className="flex items-center w-full p-2 rounded cursor-pointer text-red-600 hover:bg-gray-200"
+              >
+                <ExitIcon className="w-5 h-5 mr-2" />
+                <span>Logout</span>
               </button>
             </li>
           </ul>
