@@ -19,6 +19,7 @@ export enum ServerEvents {
   CONNECTION_READY = "connection:ready",
   MESSAGE_NEW = "message:new",
   MESSAGE_DELETED = "message:deleted",
+  MESSAGE_UPDATED = "message:updated",
   CHAT_NEW = "chat:new",
   CHAT_DELETED = "chat:deleted",
   USER_TYPING = "user:typing",
@@ -79,6 +80,7 @@ export interface ServerToClientEvents {
   [ServerEvents.CONNECTION_READY]: (payload: ConnectionReadyPayload) => void;
   [ServerEvents.MESSAGE_NEW]: (message: Message) => void;
   [ServerEvents.MESSAGE_DELETED]: (payload: MessageDeletedPayload) => void;
+  [ServerEvents.MESSAGE_UPDATED]: (message: Message) => void;
   [ServerEvents.CHAT_NEW]: (chat: Chat) => void;
   [ServerEvents.CHAT_DELETED]: (payload: ChatDeletedPayload) => void;
   [ServerEvents.USER_TYPING]: (payload: UserTypingPayload) => void;
