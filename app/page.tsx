@@ -18,6 +18,7 @@ import {
 import EditChatNameDialog from "@/components/ui/EditChatNameDialog";
 import EditMessageDialog from "@/components/ui/EditMessageDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { websocketService } from "@/lib/websocket/service";
 
 function ChatContent() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
@@ -62,6 +63,19 @@ function ChatContent() {
     [activeChatId]
   );
 
+  const handleMessageUpdated = useCallback(
+    (updated: Message) => {
+      if (updated.chat_id !== activeChatId) {
+        return;
+      }
+
+      setMessages((prev) =>
+        prev.map((m) => (m.id === updated.id ? updated : m))
+      );
+    },
+    [activeChatId]
+  );
+
   const handleNewChat = useCallback(
     (chat: Chat) => {
       setChats((prev) => {
@@ -84,8 +98,24 @@ function ChatContent() {
     [activeChatId, setActiveChatId]
   );
 
-  useMessageEvents(handleNewMessage, handleMessageDeleted);
+  useMessageEvents(
+    handleNewMessage,
+    handleMessageDeleted,
+    handleMessageUpdated
+  );
   useChatEvents(handleNewChat, handleChatDeleted);
+
+  useEffect(() => {
+    if (!activeChatId) {
+      return;
+    }
+
+    websocketService.joinChat(activeChatId);
+
+    return () => {
+      websocketService.leaveChat(activeChatId);
+    };
+  }, [activeChatId]);
 
   useEffect(() => {
     function extractChatId(hash: string): string {
