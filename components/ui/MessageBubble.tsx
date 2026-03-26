@@ -9,6 +9,7 @@ interface MessageBubbleProps {
   isMyOwnMessage: boolean;
   onRequestEdit?: (messageId: number, currentContent: string) => void;
   onRequestDelete?: (messageId: number) => void;
+  readByPeer?: boolean;
 }
 
 export default function MessageBubble({
@@ -16,6 +17,7 @@ export default function MessageBubble({
   isMyOwnMessage,
   onRequestEdit,
   onRequestDelete,
+  readByPeer = false,
 }: MessageBubbleProps) {
   const displayName =
     message.sender?.username ?? message.sender?.email ?? "Unknown";
@@ -31,9 +33,11 @@ export default function MessageBubble({
           {displayName}
         </p>
       )}
+
       <p className="min-w-0 max-w-full text-sm whitespace-pre-wrap [overflow-wrap:anywhere]">
         {message.content}
       </p>
+
       {timeSend && (
         <p
           className={`mt-1 text-xs ${isMyOwnMessage ? "text-blue-100" : "text-gray-500"}`}
@@ -41,6 +45,11 @@ export default function MessageBubble({
           {formatDate(timeSend)}
         </p>
       )}
+      {isMyOwnMessage && readByPeer ? (
+        <span className="font-medium" title="Прочитано">
+          ✓✓
+        </span>
+      ) : null}
     </>
   );
 
