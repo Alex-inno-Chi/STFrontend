@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import ChatList from "@/components/ui/ChatList";
 import ChatWindow from "@/components/ui/ChatWindow";
 import { Chat, Message } from "@/lib/types";
@@ -7,7 +7,11 @@ import { getChatsAPI, deleteChatAPI, updateChatAPI } from "@/lib/api/chats";
 import { getMessagesAPI } from "@/lib/api/messages";
 import NewChatModal from "@/components/ui/NewChatModal";
 import WebSocketProvider, { useAuthToken } from "@/providers/WebSocketProvider";
-import { useMessageEvents, useChatEvents } from "@/lib/websocket/hooks";
+import {
+  useMessageEvents,
+  useChatEvents,
+  useMessageReadStatus,
+} from "@/lib/websocket/hooks";
 import { useChatStore } from "@/lib/store/chats";
 import { getCurrentUserAPI } from "@/lib/api/auth";
 import {
@@ -19,11 +23,17 @@ import EditChatNameDialog from "@/components/ui/EditChatNameDialog";
 import EditMessageDialog from "@/components/ui/EditMessageDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { websocketService } from "@/lib/websocket/service";
+import {
+  ServerEvents,
+  MessageReadStatusPayload,
+  UserTypingPayload,
+} from "@/lib/websocket";
 
 function ChatContent() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const messagesRef = useRef<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   const { activeChatId, setActiveChatId } = useChatStore();
@@ -36,6 +46,16 @@ function ChatContent() {
     content: string;
   } | null>(null);
   const [deleteMessageId, setDeleteMessageId] = useState<number | null>(null);
+
+  const [typingUserId, setTypingUserId] = useState<number | null>(null);
+  const [readMessageIds, setReadMessageIds] = useState<Set<number>>(
+    () => new Set()
+  );
+  const { markAsRead } = useMessageReadStatus();
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   const handleChatUpdated = useCallback((updated: Chat) => {
     setChats((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
@@ -118,6 +138,11 @@ function ChatContent() {
   }, [activeChatId]);
 
   useEffect(() => {
+    setTypingUserId(null);
+    setReadMessageIds(new Set());
+  }, [activeChatId]);
+
+  useEffect(() => {
     function extractChatId(hash: string): string {
       if (hash.startsWith("#chat/")) {
         return hash.replace("#chat/", "");
@@ -128,6 +153,57 @@ function ChatContent() {
       setActiveChatId(+extractChatId(window.location.hash));
     }
   }, [activeChatId, setActiveChatId]);
+
+  useEffect(() => {
+    if (!currentUserId) {
+      return;
+    }
+
+    const unsubscribe = websocketService.on(
+      ServerEvents.MESSAGE_READ_STATUS,
+      (payload: unknown) => {
+        const payloadForMessage = payload as MessageReadStatusPayload;
+        const target = messagesRef.current.find(
+          (m) => m.id === payloadForMessage.messageId
+        );
+
+        if (target?.sender_id === currentUserId) {
+          setReadMessageIds((prev) =>
+            new Set(prev).add(payloadForMessage.messageId)
+          );
+        }
+      }
+    );
+
+    return unsubscribe;
+  }, [currentUserId]);
+
+  useEffect(() => {
+    if (!activeChatId || currentUserId == null) return;
+
+    const unsubTyping = websocketService.on(
+      ServerEvents.USER_TYPING,
+      (raw: unknown) => {
+        const p = raw as UserTypingPayload;
+        if (p.chatId !== activeChatId) return;
+        if (p.userId === currentUserId) return;
+        setTypingUserId(p.userId);
+      }
+    );
+    const unsubStopped = websocketService.on(
+      ServerEvents.USER_STOPPED_TYPING,
+      (raw: unknown) => {
+        const p = raw as UserTypingPayload;
+        if (p.chatId !== activeChatId) return;
+        setTypingUserId((id) => (id === p.userId ? null : id));
+      }
+    );
+
+    return () => {
+      unsubTyping();
+      unsubStopped();
+    };
+  }, [activeChatId, currentUserId]);
 
   const setNewMessage = useCallback(
     async (messageText: string, chatId: number | null) => {
@@ -209,6 +285,13 @@ function ChatContent() {
     loadCurrentUser();
   }, []);
 
+  const typingMemberName =
+    typingUserId != null && activeChat
+      ? (activeChat.members.find((m) => m.id === typingUserId)?.username ??
+        activeChat.members.find((m) => m.id === typingUserId)?.email ??
+        null)
+      : null;
+
   return (
     <div className="flex h-full">
       <ChatList
@@ -232,6 +315,18 @@ function ChatContent() {
             setEditMessageState({ id, content })
           }
           onRequestDeleteMessage={setDeleteMessageId}
+          typingPeerName={typingMemberName}
+          readMessageIds={readMessageIds}
+          onMarkMessageRead={(messageId) => {
+            if (!activeChatId || currentUserId == null) return;
+
+            const msg = messagesRef.current.find((m) => m.id === messageId);
+
+            if (!msg || msg.sender_id === currentUserId) return;
+
+            markAsRead(messageId, activeChatId);
+          }}
+          onBackToChatList={() => setActiveChatId(null)}
         />
       }
 
