@@ -15,6 +15,7 @@ interface ChatWindowProps {
   typingPeerName?: string | null;
   readMessageIds?: Set<number>;
   onMarkMessageRead?: (messageId: number) => void;
+  onBackToChatList?: () => void;
 }
 
 export default function ChatWindow({
@@ -28,6 +29,7 @@ export default function ChatWindow({
   typingPeerName,
   readMessageIds = new Set(),
   onMarkMessageRead,
+  onBackToChatList,
 }: ChatWindowProps) {
   const [inputValueMessage, setInputValueMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -87,9 +89,34 @@ export default function ChatWindow({
       className={`sm:flex ${chatId ? "flex" : "hidden"} flex-1 flex-col h-full max-h-screen relative`}
     >
       <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+        {onBackToChatList ? (
+          <button
+            type="button"
+            className="md:hidden flex-shrink-0 p-2 rounded-lg hover:bg-gray-100 min-w-[44px] min-h-[44px] items-center justify-center"
+            aria-label="К списку чатов"
+            onClick={onBackToChatList}
+          >
+            <svg
+              className="w-6 h-6 text-gray-800"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden
+            >
+              <path
+                d="M15 18l-6-6 6-6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        ) : null}
+
         <h2 className="text-lg font-semibold text-gray-900">
           {activeChat?.name || "Chat"}
         </h2>
+
         {typingPeerName ? (
           <p className="text-sm text-gray-500 mt-1">
             {typingPeerName} blablabla…

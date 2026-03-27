@@ -326,6 +326,7 @@ function ChatContent() {
 
             markAsRead(messageId, activeChatId);
           }}
+          onBackToChatList={() => setActiveChatId(null)}
         />
       }
 
