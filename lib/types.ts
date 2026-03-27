@@ -29,3 +29,16 @@ export interface Message {
   sender_id?: number;
   sent_at?: string;
 }
+
+export enum TypesOfRelationships {
+  Friend = "friend",
+  Follower = "follower",
+  Blocked = "blocked",
+}
+
+export interface Relationship {
+  id: number;
+  type: TypesOfRelationships;
+  relatedUserId: number;
+  relatedUser: User;
+}

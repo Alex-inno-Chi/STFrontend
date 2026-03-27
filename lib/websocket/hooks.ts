@@ -55,7 +55,8 @@ export function useChatRoom() {}
 
 export function useMessageEvents(
   onNewMessage?: (message: Message) => void,
-  onMessageDeleted?: (payload: { chatId: number; messageId: number }) => void
+  onMessageDeleted?: (payload: { chatId: number; messageId: number }) => void,
+  onMessageUpdated?: (message: Message) => void
 ) {
   useEffect(() => {
     const unsubscribers: (() => void)[] = [];
@@ -78,10 +79,19 @@ export function useMessageEvents(
       );
     }
 
+    if (onMessageUpdated) {
+      unsubscribers.push(
+        websocketService.on(
+          ServerEvents.MESSAGE_UPDATED,
+          onMessageUpdated as () => void
+        )
+      );
+    }
+
     return () => {
       unsubscribers.forEach((unsub) => unsub());
     };
-  }, [onNewMessage, onMessageDeleted]);
+  }, [onNewMessage, onMessageDeleted, onMessageUpdated]);
 }
 
 export function useChatEvents(

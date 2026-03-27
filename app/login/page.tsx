@@ -5,6 +5,8 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { loginSchema, registerSchema } from "@/lib/models";
+import { registerUserAPI, loginUserAPI } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 
 interface FormErrors {
   email?: string;
@@ -20,6 +22,8 @@ const ANIMATION_VARIANTS = {
 };
 
 export default function AuthPage() {
+  const router = useRouter();
+
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
@@ -65,8 +69,40 @@ export default function AuthPage() {
     }
 
     try {
+      let user: any | null = null;
+
+      if (isLogin) {
+        user = await loginUserAPI({
+          email: formData.email,
+          password: formData.password,
+        });
+      } else {
+        user = await registerUserAPI({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        });
+      }
+
+      if (!user) {
+        setErrors((prev) => ({
+          ...prev,
+          server: isLogin ? "Invalid email or password" : "Registration failed",
+        }));
+        setIsLoading(false);
+        return;
+      }
+
       setIsSuccess(true);
+
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     } catch {
+      setErrors((prev) => ({
+        ...prev,
+        server: "Woops something went wrong please try again",
+      }));
       setIsLoading(false);
     }
   };
@@ -75,6 +111,7 @@ export default function AuthPage() {
     setIsLogin(!isLogin);
     setFormData({ email: "", password: "", username: "" });
     setErrors({});
+    setIsSuccess(false);
   };
 
   return (
